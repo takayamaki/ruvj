@@ -1,0 +1,14 @@
+{
+  "name": "<project-name>",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/workspace",
+  "initializeCommand": "touch ~/.claude.json && mkdir -p ~/.claude",
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  "forwardPorts": [],
+  "customizations": {
+    "vscode": {
+      "extensions": []
+    }
+  }
+}

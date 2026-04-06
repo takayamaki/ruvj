@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git *)"
+    ],
+    "allow": [
+      "Bash(git-agent *)"
+    ]
+  }
+}

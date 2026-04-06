@@ -1,0 +1,18 @@
+#!/bin/bash
+# git-agent: GITHUB_TOKEN による HTTPS 認証を強制するラッパー
+#
+# GITHUB_TOKEN が設定されている場合、すべての github.com へのアクセスを
+# HTTPS + トークン認証に強制する（SSH や credential store を使わせない）。
+# GITHUB_TOKEN 未設定時はシステム git にそのまま委譲する。
+#
+# Claude Code からは git-agent 経由でのみ git 操作が許可される。
+# 人間は /usr/bin/git を直接呼ぶことでラッパーを迂回できる（意図的なエスケープハッチ）。
+
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+  exec /usr/bin/git \
+    -c "url.https://x-access-token:${GITHUB_TOKEN}@github.com/.insteadOf=https://github.com/" \
+    -c "url.https://x-access-token:${GITHUB_TOKEN}@github.com/.insteadOf=git@github.com:" \
+    "$@"
+else
+  exec /usr/bin/git "$@"
+fi

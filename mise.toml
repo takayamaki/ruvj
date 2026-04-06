@@ -1,0 +1,5 @@
+[tools]
+node = "lts"
+pnpm = "latest"
+# 言語ランタイムは各プロジェクトで追加する
+# 例: rust = "stable"

@@ -1,0 +1,14 @@
+services:
+  workspace:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    container_name: <project-name>  # TODO: プロジェクト名に変更
+    volumes:
+      - ..:/workspaces/workspace
+      - ${HOME}/.claude:/home/vscode/.claude:cached
+      - ${HOME}/.claude.json:/home/vscode/.claude.json:cached
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    stdin_open: true
+    tty: true
