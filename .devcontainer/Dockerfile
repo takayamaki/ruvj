@@ -16,10 +16,16 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     jq \
     libdb-dev \
     libffi-dev \
+    libfontconfig1-dev \
     libgdbm-dev \
+    libgl1-mesa-dev \
     libreadline-dev \
+    libsdl2-dev \
+    libsox-fmt-all \
     libssl-dev \
     libyaml-dev \
+    pulseaudio-utils \
+    sox \
     tmux \
     uuid-dev \
     vim \

@@ -8,7 +8,16 @@ services:
       - ..:/workspaces/workspace
       - ${HOME}/.claude:/home/vscode/.claude:cached
       - ${HOME}/.claude.json:/home/vscode/.claude.json:cached
+      # WSLg (X11 + Wayland + PulseAudio)
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - /mnt/wslg:/mnt/wslg:ro
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
+      # WSLg display
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0}
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+      # PulseAudio
+      - PULSE_SERVER=/mnt/wslg/PulseServer
     stdin_open: true
     tty: true
