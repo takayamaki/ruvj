@@ -1,9 +1,9 @@
 {
-  "name": "<project-name>",
+  "name": "RuVJ",
   "dockerComposeFile": "docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspaces/workspace",
-  "initializeCommand": "touch ~/.claude.json && mkdir -p ~/.claude",
+"initializeCommand": "mkdir -p ~/.claude && if [ ! -f ~/.claude.json ]; then printf '{}\n' > ~/.claude.json; fi",
   "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
   "forwardPorts": [],
   "customizations": {

@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    container_name: <project-name>  # TODO: プロジェクト名に変更
+    container_name: ruvj
     volumes:
       - ..:/workspaces/workspace
       - ${HOME}/.claude:/home/vscode/.claude:cached

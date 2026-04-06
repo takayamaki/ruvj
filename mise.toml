@@ -1,5 +1,4 @@
 [tools]
+ruby = "4.0.2"
 node = "lts"
 pnpm = "latest"
-# 言語ランタイムは各プロジェクトで追加する
-# 例: rust = "stable"

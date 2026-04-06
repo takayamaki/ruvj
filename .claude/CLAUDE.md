@@ -5,8 +5,22 @@
 
 ## プロジェクト概要
 
-- **技術スタック**: TODO
-- **ターゲット**: TODO
+- **プロジェクト名**: Ruby VJビジュアライザー
+- **概要**: RubyistイベントでのDJ/VJパフォーマンス用、Gosuベースのライブコーディングビジュアライザー
+- **技術スタック**: Ruby 4.0.2 / Gosu 1.4.6 / sox (マイク入力) / osc-ruby (OSC入力)
+- **実行環境**: WSL2 + WSLg
+- **ターゲット**: デスクトップアプリ（1280x720 Gosuウィンドウ）
+- **設計ドキュメント**: [Notion](https://www.notion.so/Ruby-VJ-32f34f9c84e98190bbe1ddecd18ba26b)
+
+### コア設計
+- `main.rb` — Gosuウィンドウ本体、ホットリロード監視、キー操作
+- `beat.rb` — BPMカウンター、ビート信号管理
+- `audio.rb` — マイク入力・FFT・ビート検出・フォールバック管理（mic→OSC→beat.rb）
+- `visual.rb` — ライブコーディングターゲット（本番中に書き換え）
+- ユーティリティ: `palette.rb`, `draw_ext.rb`, `particle.rb`, `perlin.rb`
+
+### ホットリロード方式
+`visual.rb` の更新日時を毎フレーム監視 → `load` で再読み込み → Rubyのオープンクラスで `Gosu::Window` のメソッドを上書き。`rescue` でエラー時は前のコード継続。
 
 ---
 
