@@ -1,10 +1,29 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "deny": [
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(pnpm approve-builds)"
     ],
     "allow": [
-      "Bash(git-agent *)"
+      "mcp__claude_ai_Notion__*",
+      "Bash",
+      "WebFetch",
+      "WebSearch",
+      "Bash(pnpm install)",
+      "Bash(git-agent *)",
+      "Read(//workspaces/workspace/**)",
+      "Write(//workspaces/workspace/**)",
+      "Edit(//workspaces/workspace/**)",
+      "Read(//tmp/**)",
+      "Write(//tmp/**)",
+      "Edit(//tmp/**)",
+      "Read(//home/vscode/.claude/**)",
+      "Write(//home/vscode/.claude/**)",
+      "Edit(//home/vscode/.claude/**)"
     ]
   }
 }
