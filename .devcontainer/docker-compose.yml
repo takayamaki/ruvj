@@ -19,5 +19,7 @@ services:
       - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
       # PulseAudio
       - PULSE_SERVER=/mnt/wslg/PulseServer
+    ports:
+      - "57120:57120/udp"
     stdin_open: true
     tty: true
