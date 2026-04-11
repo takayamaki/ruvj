@@ -1,5 +1,6 @@
 require 'gosu'
 require_relative 'beat'
+require_relative 'audio'
 require_relative 'vj_context'
 require_relative 'vj_shapes'
 
@@ -7,11 +8,12 @@ class RuVJ < Gosu::Window
   include VjShapes
 
   def initialize
-    super(W, H, fullscreen: false)
+    super(W, H)
     self.caption = 'RuVJ'
 
-    @beat = Beat.new
-    @vj   = VJContext.new(beat: @beat)
+    @beat  = Beat.new
+    @audio = Audio.new(beat_fallback: @beat)
+    @vj    = VJContext.new(beat: @beat, audio: @audio)
 
     @visual_path  = File.expand_path('visual.rb', __dir__)
     @last_loaded  = Time.at(0)
@@ -20,13 +22,18 @@ class RuVJ < Gosu::Window
 
   def update
     @beat.update
+    @audio.update
     @vj.update
     reload_visual if File.mtime(@visual_path) > @last_loaded
   end
 
   def draw
-    # visual.rb が RuVJ#draw を上書きする
-    # ロード前のフォールバック
+    draw_scene
+  rescue Exception => e
+    $stderr.puts "draw error: #{e.message}"
+  end
+
+  def draw_scene
     Bg(color: [0, 0, 0])
   end
 
@@ -45,7 +52,8 @@ class RuVJ < Gosu::Window
   def reload_visual
     load @visual_path
     @last_loaded = Time.now
-  rescue => e
+    $stderr.puts "reloading visual.rb..."
+  rescue Exception => e
     $stderr.puts "reload error: #{e.message}"
   end
 end
