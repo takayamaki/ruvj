@@ -1,22 +1,53 @@
 require 'gosu'
+require_relative 'beat'
+require_relative 'vj_context'
+require_relative 'vj_shapes'
 
-class TestWindow < Gosu::Window
+class RuVJ < Gosu::Window
+  include VjShapes
+
   def initialize
-    super(1280, 720)
+    super(W, H, fullscreen: false)
     self.caption = 'RuVJ'
-    @font = Gosu::Font.new(48)
+
+    @beat = Beat.new
+    @vj   = VJContext.new(beat: @beat)
+
+    @visual_path  = File.expand_path('visual.rb', __dir__)
+    @last_loaded  = Time.at(0)
+    reload_visual
+  end
+
+  def update
+    @beat.update
+    @vj.update
+    reload_visual if File.mtime(@visual_path) > @last_loaded
   end
 
   def draw
-    # 背景に矩形
-    Gosu.draw_rect(540, 260, 200, 200, Gosu::Color::CYAN)
-    # テキスト
-    @font.draw_text('RuVJ', 560, 330, 1, 1, 1, Gosu::Color::BLACK)
+    # visual.rb が RuVJ#draw を上書きする
+    # ロード前のフォールバック
+    Bg(color: [0, 0, 0])
   end
 
   def button_down(id)
-    close if id == Gosu::KB_ESCAPE
+    case id
+    when Gosu::KB_ESCAPE then close
+    when Gosu::KB_SPACE  then @beat.tap!
+    when Gosu::KB_R      then @last_loaded = Time.at(0)
+    when Gosu::KB_UP     then @beat.bpm += 1
+    when Gosu::KB_DOWN   then @beat.bpm -= 1
+    end
+  end
+
+  private
+
+  def reload_visual
+    load @visual_path
+    @last_loaded = Time.now
+  rescue => e
+    $stderr.puts "reload error: #{e.message}"
   end
 end
 
-TestWindow.new.show
+RuVJ.new.show
