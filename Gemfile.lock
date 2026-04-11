@@ -1,7 +1,14 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    drb (2.2.3)
     gosu (1.4.6)
+    minitest (6.0.3)
+      drb (~> 2.0)
+      prism (~> 1.5)
+    osc-ruby (1.1.5)
+    ostruct (0.6.3)
+    prism (1.9.0)
 
 PLATFORMS
   ruby
@@ -9,9 +16,17 @@ PLATFORMS
 
 DEPENDENCIES
   gosu (~> 1.4)
+  minitest
+  osc-ruby
+  ostruct
 
 CHECKSUMS
+  drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   gosu (1.4.6) sha256=80c7fa48cf61f4960ef067fdd1c000d98b4adc8e11faeaa486543d00908a5c15
+  minitest (6.0.3) sha256=88ac8a1de36c00692420e7cb3cc11a0773bbcb126aee1c249f320160a7d11411
+  osc-ruby (1.1.5) sha256=618e1b954eaf216b6f6f62c0d5e057d0223418a0cbe93c10f86a1c39e80847fb
+  ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
+  prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
 
 BUNDLED WITH
   4.0.6
