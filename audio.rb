@@ -6,11 +6,12 @@ class Audio
   ENERGY_FRAMES      = 43
   CALIBRATION_CHUNKS = 23   # ~500ms (48000/1024 ≈ 47 chunks/sec)
 
-  attr_reader :amp, :low, :mid, :hi, :source
+  attr_reader :amp, :low, :mid, :hi, :source, :spectrum
 
   def initialize(beat_fallback:)
     @beat_fallback = beat_fallback
     @amp = @low = @mid = @hi = 0.0
+    @spectrum = []
     @beat_detected = false
     @amp_floor = @low_floor = @mid_floor = @hi_floor = 0.0
     @amp_calib = @low_calib = @mid_calib = @hi_calib = 0.0
@@ -123,7 +124,7 @@ class Audio
         avg  = energy_history.sum / energy_history.size
         beat = energy > avg * 1.4 && energy > 0.005
 
-        result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat }
+        result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat, spectrum: spectrum }
       end
     end
   end
@@ -161,6 +162,7 @@ class Audio
       mid  = r[:mid]
       hi   = r[:hi]
       beat = r[:beat]
+      @spectrum = r[:spectrum]
 
       @amp_floor = @amp_floor * 0.998 + rms * 0.002
       @low_floor = @low_floor * 0.998 + low * 0.002

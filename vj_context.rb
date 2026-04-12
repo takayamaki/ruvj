@@ -7,6 +7,7 @@ class VJContext
     @beat_flag  = false
     @beat_val   = 0.0
     @amp_val = @low_val = @mid_val = @hi_val = 0.0
+    @spec_peak = 0.001
   end
 
   def update
@@ -40,4 +41,35 @@ class VJContext
 
   def t     = (Time.now - @started_at).to_f
   def frame = @frame
+
+  def spectrum(n = 32)
+    raw = @audio&.spectrum
+    return Array.new(n, 0.0) unless raw && raw.size > 1
+
+    bins     = raw.size
+    bin_hz   = Audio::SAMPLE_RATE.to_f / Audio::CHUNK_SIZE
+    f_min    = bin_hz
+    f_max    = bin_hz * (bins - 1)
+    log_span = Math.log(f_max / f_min)
+
+    vals = Array.new(n) do |i|
+      freq_lo = f_min * Math.exp(log_span * i.to_f / n)
+      freq_hi = f_min * Math.exp(log_span * (i + 1.0) / n)
+      b_lo    = [(freq_lo / bin_hz).floor, 1].max
+      b_hi    = [(freq_hi / bin_hz).ceil, bins - 1].min
+      b_hi    = b_lo if b_hi < b_lo
+      slice   = raw[b_lo..b_hi]
+      slice.sum / slice.size
+    end
+
+    @spec_peak = [@spec_peak * 0.995, vals.max, 0.001].max
+    vals.map { |v| smoothstep((v / @spec_peak).clamp(0.0, 1.0)) }
+  end
+
+  private
+
+  def smoothstep(x)
+    t = x.clamp(0.0, 1.0)
+    t * t * (3.0 - 2.0 * t)
+  end
 end
