@@ -157,3 +157,22 @@ class HsvArrayToColorTest < Minitest::Test
     assert_equal c1.blue,  c2.blue
   end
 end
+
+class PolarTest < Minitest::Test
+  include VjShapes
+
+  # --- 基本軸 ---
+  def test_angle_0_points_right
+  end
+
+  def test_angle_half_pi_points_up
+  end
+
+  # --- 半径 ---
+  def test_radius_scales_output
+  end
+
+  # --- 任意角度 ---
+  def test_arbitrary_angle_matches_trig
+  end
+end
