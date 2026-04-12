@@ -7,6 +7,7 @@ class VJContext
     @beat_flag  = false
     @beat_val   = 0.0
     @amp_val = @low_val = @mid_val = @hi_val = 0.0
+    @spec_decay = {}
   end
 
   def update
@@ -56,7 +57,7 @@ class VJContext
     f_max    = bin_hz * (bins - 1)
     log_span = Math.log(f_max / f_min)
 
-    Array.new(n) do |i|
+    current = Array.new(n) do |i|
       freq_lo = f_min * Math.exp(log_span * i.to_f / n)
       freq_hi = f_min * Math.exp(log_span * (i + 1.0) / n)
       b_lo    = [(freq_lo / bin_hz).floor, 1].max
@@ -65,6 +66,9 @@ class VJContext
       slice   = normalized[b_lo..b_hi]
       smoothstep(slice.sum / slice.size)
     end
+
+    prev = @spec_decay[n] ||= Array.new(n, 0.0)
+    @spec_decay[n] = Array.new(n) { |i| [current[i], prev[i] * 0.75].max }
   end
 
   private

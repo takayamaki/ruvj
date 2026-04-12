@@ -12,6 +12,7 @@ class Audio
     @beat_fallback = beat_fallback
     @amp = @low = @mid = @hi = 0.0
     @spectrum = []
+    @spec_calib = nil
     @beat_detected = false
     @amp_floor = @low_floor = @mid_floor = @hi_floor = 0.0
     @amp_calib = @low_calib = @mid_calib = @hi_calib = 0.0
@@ -162,7 +163,7 @@ class Audio
       mid  = r[:mid]
       hi   = r[:hi]
       beat = r[:beat]
-      @spectrum = r[:spectrum]
+      spec = r[:spectrum]
 
       @amp_floor = @amp_floor * 0.998 + rms * 0.002
       @low_floor = @low_floor * 0.998 + low * 0.002
@@ -179,6 +180,11 @@ class Audio
         @low_calib = [@low_calib, low_var].max
         @mid_calib = [@mid_calib, mid_var].max
         @hi_calib  = [@hi_calib,  hi_var ].max
+        if @spec_calib
+          spec.size.times { |k| @spec_calib[k] = [@spec_calib[k], spec[k]].max }
+        else
+          @spec_calib = spec.dup
+        end
         @calib_count += 1
         if @calib_count == CALIBRATION_CHUNKS
           $stderr.puts "calibrated: low=#{@low_calib.round(4)} mid=#{@mid_calib.round(4)} hi=#{@hi_calib.round(4)}"
@@ -199,6 +205,7 @@ class Audio
         @mid = smoothstep(mid_sig / [@mid_peak, 0.001].max)
         @hi  = smoothstep(hi_sig  / [@hi_peak,  0.001].max)
         @beat_detected = beat
+        @spectrum = Array.new(spec.size) { |k| [spec[k] - @spec_calib[k], 0.0].max }
       end
     end
   end

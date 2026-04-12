@@ -85,4 +85,15 @@ class VJContextSpectrumTest < Minitest::Test
     vj  = VJContext.new(beat: @beat, audio: AudioStub::Flat.new(spectrum: raw))
     10.times { vj.spectrum.each { |v| assert_operator v, :<=, 1.0 } }
   end
+
+  # --- 減衰 ---
+  def test_values_decay_toward_zero_when_spectrum_drops_to_silence
+    audio = AudioStub::Flat.new(spectrum: Array.new(512, 1.0))
+    vj    = VJContext.new(beat: @beat, audio: audio)
+    5.times { vj.spectrum }  # ピークを学習
+    audio.instance_variable_set(:@spectrum, Array.new(512, 0.0))
+    v1 = vj.spectrum.max
+    v2 = vj.spectrum.max
+    assert_operator v2, :<, v1, "音が止まったら値が減衰するはず"
+  end
 end
