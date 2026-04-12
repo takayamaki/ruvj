@@ -36,7 +36,8 @@ class Audio
   def start_mic
     cmd = "rec -q -t raw -e signed-integer -b 16 -c 1 -r #{SAMPLE_RATE} -"
     @io = IO.popen(cmd, 'rb')
-    @proc_ractor = build_proc_ractor
+    @result_port  = Ractor::Port.new
+    @proc_ractor  = build_proc_ractor
     @source = :mic
     Thread.new { mic_loop }
     Thread.new { result_loop }
@@ -45,7 +46,7 @@ class Audio
   end
 
   def build_proc_ractor
-    Ractor.new(SAMPLE_RATE, CHUNK_SIZE, ENERGY_FRAMES) do |sr, cs, ef|
+    Ractor.new(@result_port, SAMPLE_RATE, CHUNK_SIZE, ENERGY_FRAMES) do |result_port, sr, cs, ef|
       energy_history = Array.new(ef, 0.0)
       bin    = sr.to_f / cs
       low_hi = (250  / bin).ceil
@@ -87,7 +88,7 @@ class Audio
         avg  = energy_history.sum / energy_history.size
         beat = energy > avg * 1.4 && energy > 0.005
 
-        Ractor.yield({ rms: rms, low: low, mid: mid, hi: hi, beat: beat })
+        result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat }
       end
     end
   end
@@ -106,7 +107,7 @@ class Audio
 
   def result_loop
     loop do
-      apply_result(@proc_ractor.take)
+      apply_result(@result_port.receive)
     end
   rescue => e
     $stderr.puts "result error: #{e.message}"
