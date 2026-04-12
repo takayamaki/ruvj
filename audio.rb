@@ -52,18 +52,37 @@ class Audio
       low_hi = (250  / bin).ceil
       mid_hi = (4000 / bin).ceil
 
-      fft = nil
+      # ツイドルファクタとビット反転テーブルをチャンクループ前に事前計算
+      log2n   = Math.log2(cs).to_i
+      twiddle = (0...log2n).map do |stage|
+        half  = 1 << stage
+        len   = half << 1
+        angle = -2.0 * Math::PI / len
+        Array.new(half) { |k| Complex(Math.cos(angle * k), Math.sin(angle * k)) }
+      end
+      bit_rev = Array.new(cs) do |i|
+        rev = 0
+        log2n.times { |b| rev = (rev << 1) | ((i >> b) & 1) }
+        rev
+      end
+
       fft = ->(samples) do
-        n = samples.size
-        return [Complex(samples[0])] if n == 1
-        even_s = fft.(samples.each_slice(2).map(&:first))
-        odd_s  = fft.(samples.each_slice(2).map(&:last))
-        half   = n / 2
-        Array.new(n) do |k|
-          t = Complex(Math.cos(-2 * Math::PI * k / n),
-                      Math.sin(-2 * Math::PI * k / n)) * odd_s[k % half]
-          even_s[k % half] + t
+        a = Array.new(cs) { |i| Complex(samples[i]) }
+        cs.times { |i| a[i], a[bit_rev[i]] = a[bit_rev[i]], a[i] if i < bit_rev[i] }
+        log2n.times do |stage|
+          half = 1 << stage
+          len  = half << 1
+          tw   = twiddle[stage]
+          (0...cs).step(len) do |i|
+            half.times do |k|
+              u = a[i + k]
+              v = a[i + k + half] * tw[k]
+              a[i + k]        = u + v
+              a[i + k + half] = u - v
+            end
+          end
         end
+        a
       end
 
       band_rms = ->(spectrum, from, to) do
