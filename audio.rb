@@ -1,7 +1,8 @@
 class Audio
-  SAMPLE_RATE   = 48000
-  CHUNK_SIZE    = 1024
-  ENERGY_FRAMES = 43
+  SAMPLE_RATE         = 48000
+  CHUNK_SIZE          = 1024
+  ENERGY_FRAMES       = 43
+  CALIBRATION_CHUNKS  = 23   # ~500ms (48000/1024 ≈ 47 chunks/sec)
 
   attr_reader :amp, :low, :mid, :hi, :source
 
@@ -12,6 +13,8 @@ class Audio
     @energy_history = Array.new(ENERGY_FRAMES, 0.0)
     @amp_peak  = @low_peak  = @mid_peak  = @hi_peak  = 0.001
     @amp_floor = @low_floor = @mid_floor = @hi_floor = 0.0
+    @amp_calib = @low_calib = @mid_calib = @hi_calib = 0.0
+    @calib_count = 0
     @mutex  = Mutex.new
     @source = :beat
     start_mic
@@ -78,16 +81,30 @@ class Audio
       mid_var = [mid - @mid_floor, 0.0].max
       hi_var  = [hi  - @hi_floor,  0.0].max
 
-      @amp_peak = [@amp_peak * 0.995, amp_var].max
-      @low_peak = [@low_peak * 0.995, low_var].max
-      @mid_peak = [@mid_peak * 0.995, mid_var].max
-      @hi_peak  = [@hi_peak  * 0.995, hi_var ].max
+      if @calib_count < CALIBRATION_CHUNKS
+        @amp_calib = [@amp_calib, amp_var].max
+        @low_calib = [@low_calib, low_var].max
+        @mid_calib = [@mid_calib, mid_var].max
+        @hi_calib  = [@hi_calib,  hi_var ].max
+        @calib_count += 1
+        $stderr.puts "calibrated: low=#{@low_calib.round(4)} mid=#{@mid_calib.round(4)} hi=#{@hi_calib.round(4)}" if @calib_count == CALIBRATION_CHUNKS
+      else
+        amp_sig = [amp_var - @amp_calib, 0.0].max
+        low_sig = [low_var - @low_calib, 0.0].max
+        mid_sig = [mid_var - @mid_calib, 0.0].max
+        hi_sig  = [hi_var  - @hi_calib,  0.0].max
 
-      @amp           = smoothstep(amp_var / [@amp_peak, 0.001].max)
-      @low           = smoothstep(low_var / [@low_peak, 0.001].max)
-      @mid           = smoothstep(mid_var / [@mid_peak, 0.001].max)
-      @hi            = smoothstep(hi_var  / [@hi_peak,  0.001].max)
-      @beat_detected = beat
+        @amp_peak = [@amp_peak * 0.995, amp_sig].max
+        @low_peak = [@low_peak * 0.995, low_sig].max
+        @mid_peak = [@mid_peak * 0.995, mid_sig].max
+        @hi_peak  = [@hi_peak  * 0.995, hi_sig ].max
+
+        @amp           = smoothstep(amp_sig / [@amp_peak, 0.001].max)
+        @low           = smoothstep(low_sig / [@low_peak, 0.001].max)
+        @mid           = smoothstep(mid_sig / [@mid_peak, 0.001].max)
+        @hi            = smoothstep(hi_sig  / [@hi_peak,  0.001].max)
+        @beat_detected = beat
+      end
     end
   end
 
