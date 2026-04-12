@@ -7,7 +7,7 @@ module VjShapes
     [W / 2.0 + x * UNIT, H / 2.0 - y * UNIT]
   end
 
-  def Circle(x: 0, y: 0, r: 1, color:, z: 0, steps: 24)
+  def Circle(x: 0, y: 0, r: 1, color:, z: 0, steps: 16)
     cx, cy = vj_px(x, y)
     pr = r * UNIT
     steps.times do |i|
