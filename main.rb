@@ -1,3 +1,5 @@
+GC.auto_compact = false  # Gosu 1.4.6 が Ruby 4.0 コンパクション未対応のため無効化
+
 require 'gosu'
 require_relative 'beat'
 require_relative 'audio'
