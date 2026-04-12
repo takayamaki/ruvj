@@ -9,13 +9,15 @@ module AudioStub
   class Flat
     attr_reader :amp, :low, :mid, :hi
 
-    def initialize(spectrum: nil, amp: 0.0, low: 0.0, mid: 0.0, hi: 0.0)
+    def initialize(spectrum: nil, waveform: nil, amp: 0.0, low: 0.0, mid: 0.0, hi: 0.0)
       @spectrum = spectrum || Array.new(CHUNK_SIZE / 2, 0.0)
+      @waveform = waveform || Array.new(256, 0.0)
       @amp = amp; @low = low; @mid = mid; @hi = hi
     end
 
     def beat? = false
     def spectrum = @spectrum
+    def waveform = @waveform
   end
 end
 
@@ -95,5 +97,30 @@ class VJContextSpectrumTest < Minitest::Test
     v1 = vj.spectrum.max
     v2 = vj.spectrum.max
     assert_operator v2, :<, v1, "音が止まったら値が減衰するはず"
+  end
+end
+
+class VJContextWaveformTest < Minitest::Test
+  def setup
+    @beat = Beat.new
+  end
+
+  # --- audio なし ---
+  def test_waveform_returns_empty_array_when_audio_is_nil
+  end
+
+  # --- デフォルト動作 ---
+  def test_waveform_returns_array_of_floats
+  end
+
+  def test_waveform_has_256_elements
+  end
+
+  # --- 値の範囲 ---
+  def test_all_values_are_within_minus_1_to_1
+  end
+
+  # --- 内容の反映 ---
+  def test_waveform_reflects_audio_samples
   end
 end
