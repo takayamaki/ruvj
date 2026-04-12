@@ -1,3 +1,5 @@
+require 'timeout'
+
 class Audio
   SAMPLE_RATE        = 48000
   CHUNK_SIZE         = 1024
@@ -101,6 +103,10 @@ class Audio
         mid = band_rms.(spectrum, low_hi, mid_hi)
         hi  = band_rms.(spectrum, mid_hi, spectrum.size - 1)
 
+t = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  spectrum = fft.(samples).first(cs / 2).map(&:abs)
+  $stderr.puts "fft: #{((Process.clock_gettime(Process::CLOCK_MONOTONIC) - t) * 1000).round(2)}ms"
+        
         energy = rms ** 2
         energy_history.shift
         energy_history.push(energy)
@@ -124,9 +130,15 @@ class Audio
     @source = :beat
   end
 
+  CHUNK_BUDGET = CHUNK_SIZE.to_f / SAMPLE_RATE  # ~21ms
+
   def result_loop
     loop do
-      apply_result(@result_port.receive)
+      begin
+        apply_result(Timeout.timeout(CHUNK_BUDGET) { @result_port.receive })
+      rescue Timeout::Error
+        # バジェット超過: 前フレームの値をそのまま保持
+      end
     end
   rescue => e
     $stderr.puts "result error: #{e.message}"
