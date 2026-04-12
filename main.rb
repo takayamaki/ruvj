@@ -8,7 +8,7 @@ class RuVJ < Gosu::Window
   include VjShapes
 
   def initialize
-    super(W, H)
+    super(W, H, resizable: true)
     self.caption = 'RuVJ'
 
     @beat  = Beat.new
@@ -28,7 +28,10 @@ class RuVJ < Gosu::Window
   end
 
   def draw
-    draw_scene
+    s  = [width.to_f / W, height.to_f / H].max
+    ox = (width  - W * s) / 2.0
+    oy = (height - H * s) / 2.0
+    Gosu.translate(ox, oy) { Gosu.scale(s, s) { draw_scene } }
   rescue Exception => e
     $stderr.puts "draw error: #{e.message}"
   end
