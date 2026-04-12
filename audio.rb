@@ -55,12 +55,19 @@ class Audio
       mid_hi = (4000 / bin).ceil
 
       # ツイドルファクタとビット反転テーブルをチャンクループ前に事前計算
-      log2n   = Math.log2(cs).to_i
-      twiddle = (0...log2n).map do |stage|
+      # Complex オブジェクトを避けて実部・虚部を別々の Float 配列で保持（GC セグフォ回避）
+      log2n      = Math.log2(cs).to_i
+      twiddle_re = (0...log2n).map do |stage|
         half  = 1 << stage
         len   = half << 1
         angle = -2.0 * Math::PI / len
-        Array.new(half) { |k| Complex(Math.cos(angle * k), Math.sin(angle * k)) }
+        Array.new(half) { |k| Math.cos(angle * k) }
+      end
+      twiddle_im = (0...log2n).map do |stage|
+        half  = 1 << stage
+        len   = half << 1
+        angle = -2.0 * Math::PI / len
+        Array.new(half) { |k| Math.sin(angle * k) }
       end
       bit_rev = Array.new(cs) do |i|
         rev = 0
@@ -69,22 +76,29 @@ class Audio
       end
 
       fft = ->(samples) do
-        a = Array.new(cs) { |i| Complex(samples[i]) }
-        cs.times { |i| a[i], a[bit_rev[i]] = a[bit_rev[i]], a[i] if i < bit_rev[i] }
+        re = Array.new(cs) { |i| samples[i].to_f }
+        im = Array.new(cs, 0.0)
+        cs.times { |i| re[i], re[bit_rev[i]] = re[bit_rev[i]], re[i] if i < bit_rev[i] }
+        cs.times { |i| im[i], im[bit_rev[i]] = im[bit_rev[i]], im[i] if i < bit_rev[i] }
         log2n.times do |stage|
           half = 1 << stage
           len  = half << 1
-          tw   = twiddle[stage]
+          twr  = twiddle_re[stage]
+          twi  = twiddle_im[stage]
           (0...cs).step(len) do |i|
             half.times do |k|
-              u = a[i + k]
-              v = a[i + k + half] * tw[k]
-              a[i + k]        = u + v
-              a[i + k + half] = u - v
+              p = i + k
+              q = p + half
+              vr = re[q] * twr[k] - im[q] * twi[k]
+              vi = re[q] * twi[k] + im[q] * twr[k]
+              re[q] = re[p] - vr
+              im[q] = im[p] - vi
+              re[p] = re[p] + vr
+              im[p] = im[p] + vi
             end
           end
         end
-        a
+        Array.new(cs / 2) { |k| Math.sqrt(re[k] * re[k] + im[k] * im[k]) }
       end
 
       band_rms = ->(spectrum, from, to) do
@@ -97,7 +111,7 @@ class Audio
         samples = Ractor.receive
 
         rms      = Math.sqrt(samples.sum { _1 * _1 } / samples.size)
-        spectrum = fft.(samples).first(cs / 2).map(&:abs)
+        spectrum = fft.(samples)
 
         low = band_rms.(spectrum, 1,      low_hi)
         mid = band_rms.(spectrum, low_hi, mid_hi)
