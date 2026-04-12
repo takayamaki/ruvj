@@ -25,6 +25,7 @@ class RuVJ < Gosu::Window
     @audio.update
     @vj.update
     reload_visual if File.mtime(@visual_path) > @last_loaded
+    self.caption = "RuVJ  #{Gosu.fps} fps"
   end
 
   def draw
