@@ -163,29 +163,34 @@ class PolarTest < Minitest::Test
 
   # --- 基本軸 ---
   def test_angle_0_points_right
-    x, y = polar(1, 0)
-    assert_in_delta  1.0, x, 1e-10
-    assert_in_delta  0.0, y, 1e-10
+    assert_in_delta  1.0, polar(1, 0)[:x], 1e-10
+    assert_in_delta  0.0, polar(1, 0)[:y], 1e-10
   end
 
   def test_angle_half_pi_points_up
-    x, y = polar(1, Math::PI / 2)
-    assert_in_delta  0.0, x, 1e-10
-    assert_in_delta  1.0, y, 1e-10
+    assert_in_delta  0.0, polar(1, Math::PI / 2)[:x], 1e-10
+    assert_in_delta  1.0, polar(1, Math::PI / 2)[:y], 1e-10
   end
 
   # --- 半径 ---
   def test_radius_scales_output
-    x, y = polar(3, 0)
-    assert_in_delta  3.0, x, 1e-10
-    assert_in_delta  0.0, y, 1e-10
+    assert_in_delta  3.0, polar(3, 0)[:x], 1e-10
+    assert_in_delta  0.0, polar(3, 0)[:y], 1e-10
   end
 
   # --- 任意角度 ---
   def test_arbitrary_angle_matches_trig
     r, t = 2.5, 1.2
-    x, y = polar(r, t)
-    assert_in_delta r * Math.cos(t), x, 1e-10
-    assert_in_delta r * Math.sin(t), y, 1e-10
+    p = polar(r, t)
+    assert_in_delta r * Math.cos(t), p[:x], 1e-10
+    assert_in_delta r * Math.sin(t), p[:y], 1e-10
+  end
+
+  # --- ** 展開 ---
+  def test_can_splat_into_keyword_args
+    Gosu::DRAW_LOG.clear
+    Circle(**polar(2, 0), r: 1, color: [0, 1, 1])
+    cx = Gosu::DRAW_LOG.first.args[0]
+    assert_in_delta 640.0 + 2 * UNIT, cx, 0.001
   end
 end

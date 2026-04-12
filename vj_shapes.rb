@@ -57,7 +57,7 @@ module VjShapes
   end
 
   def polar(r, theta)
-    [r * Math.cos(theta), r * Math.sin(theta)]
+    { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end
 
   def hsv_to_gosu(hsv)
