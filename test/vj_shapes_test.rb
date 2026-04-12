@@ -163,16 +163,29 @@ class PolarTest < Minitest::Test
 
   # --- 基本軸 ---
   def test_angle_0_points_right
+    x, y = polar(1, 0)
+    assert_in_delta  1.0, x, 1e-10
+    assert_in_delta  0.0, y, 1e-10
   end
 
   def test_angle_half_pi_points_up
+    x, y = polar(1, Math::PI / 2)
+    assert_in_delta  0.0, x, 1e-10
+    assert_in_delta  1.0, y, 1e-10
   end
 
   # --- 半径 ---
   def test_radius_scales_output
+    x, y = polar(3, 0)
+    assert_in_delta  3.0, x, 1e-10
+    assert_in_delta  0.0, y, 1e-10
   end
 
   # --- 任意角度 ---
   def test_arbitrary_angle_matches_trig
+    r, t = 2.5, 1.2
+    x, y = polar(r, t)
+    assert_in_delta r * Math.cos(t), x, 1e-10
+    assert_in_delta r * Math.sin(t), y, 1e-10
   end
 end

@@ -56,6 +56,10 @@ module VjShapes
     Gosu.draw_rect(0, 0, W, H, hsv_to_gosu(color), 0)
   end
 
+  def polar(r, theta)
+    [r * Math.cos(theta), r * Math.sin(theta)]
+  end
+
   def hsv_to_gosu(hsv)
     h, s, v, a = hsv[0], hsv[1], hsv[2], (hsv[3] || 255)
     h = h % 360
