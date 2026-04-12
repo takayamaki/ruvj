@@ -51,7 +51,7 @@ class Audio
     Ractor.new(@result_port, SAMPLE_RATE, CHUNK_SIZE, ENERGY_FRAMES) do |result_port, sr, cs, ef|
       energy_history = Array.new(ef, 0.0)
       bin    = sr.to_f / cs
-      low_hi = (250  / bin).ceil
+      low_hi = (150  / bin).ceil
       mid_hi = (4000 / bin).ceil
 
       # ツイドルファクタとビット反転テーブルをチャンクループ前に事前計算
