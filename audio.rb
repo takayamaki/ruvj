@@ -6,12 +6,13 @@ class Audio
   ENERGY_FRAMES      = 43
   CALIBRATION_CHUNKS = 23   # ~500ms (48000/1024 ≈ 47 chunks/sec)
 
-  attr_reader :amp, :low, :mid, :hi, :source, :spectrum
+  attr_reader :amp, :low, :mid, :hi, :source, :spectrum, :waveform
 
   def initialize(beat_fallback:)
     @beat_fallback = beat_fallback
     @amp = @low = @mid = @hi = 0.0
     @spectrum = []
+    @waveform = []
     @spec_calib = nil
     @beat_detected = false
     @amp_floor = @low_floor = @mid_floor = @hi_floor = 0.0
@@ -114,6 +115,8 @@ class Audio
 
         rms      = Math.sqrt(samples.sum { _1 * _1 } / samples.size)
         spectrum = fft.(samples)
+        step     = cs / 256
+        waveform = Array.new(256) { |i| samples[i * step] }
 
         low = band_rms.(spectrum, 1,      low_hi)
         mid = band_rms.(spectrum, low_hi, mid_hi)
@@ -125,7 +128,7 @@ class Audio
         avg  = energy_history.sum / energy_history.size
         beat = energy > avg * 1.4 && energy > 0.005
 
-        result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat, spectrum: spectrum }
+        result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat, spectrum: spectrum, waveform: waveform }
       end
     end
   end
@@ -206,6 +209,7 @@ class Audio
         @hi  = smoothstep(hi_sig  / [@hi_peak,  0.001].max)
         @beat_detected = beat
         @spectrum = Array.new(spec.size) { |k| [spec[k] - @spec_calib[k], 0.0].max }
+        @waveform = r[:waveform]
       end
     end
   end

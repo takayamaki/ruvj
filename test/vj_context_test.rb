@@ -107,20 +107,32 @@ class VJContextWaveformTest < Minitest::Test
 
   # --- audio なし ---
   def test_waveform_returns_empty_array_when_audio_is_nil
+    vj = VJContext.new(beat: @beat)
+    assert_equal [], vj.waveform
   end
 
   # --- デフォルト動作 ---
   def test_waveform_returns_array_of_floats
+    vj = VJContext.new(beat: @beat, audio: AudioStub::Flat.new)
+    assert vj.waveform.all? { _1.is_a?(Float) }
   end
 
   def test_waveform_has_256_elements
+    vj = VJContext.new(beat: @beat, audio: AudioStub::Flat.new)
+    assert_equal 256, vj.waveform.size
   end
 
   # --- 値の範囲 ---
   def test_all_values_are_within_minus_1_to_1
+    wave = Array.new(256) { rand * 2 - 1 }
+    vj   = VJContext.new(beat: @beat, audio: AudioStub::Flat.new(waveform: wave))
+    vj.waveform.each { |v| assert_operator v, :>=, -1.0; assert_operator v, :<=, 1.0 }
   end
 
   # --- 内容の反映 ---
   def test_waveform_reflects_audio_samples
+    wave = Array.new(256) { |i| Math.sin(i * 0.1) }
+    vj   = VJContext.new(beat: @beat, audio: AudioStub::Flat.new(waveform: wave))
+    assert_in_delta wave[10], vj.waveform[10], 0.0001
   end
 end

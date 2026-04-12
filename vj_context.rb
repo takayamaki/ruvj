@@ -39,8 +39,9 @@ class VJContext
   def mid = @mid_val
   def hi  = @hi_val
 
-  def t     = (Time.now - @started_at).to_f
-  def frame = @frame
+  def t        = (Time.now - @started_at).to_f
+  def frame    = @frame
+  def waveform = @audio&.waveform || []
 
   def spectrum(n = 32)
     raw = @audio&.spectrum
@@ -68,7 +69,7 @@ class VJContext
     end
 
     prev = @spec_decay[n] ||= Array.new(n, 0.0)
-    @spec_decay[n] = Array.new(n) { |i| [current[i], prev[i] * 0.75].max }
+    @spec_decay[n] = Array.new(n) { |i| [current[i], prev[i] * 0.95].max }
   end
 
   private
