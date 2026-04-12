@@ -103,10 +103,6 @@ class Audio
         mid = band_rms.(spectrum, low_hi, mid_hi)
         hi  = band_rms.(spectrum, mid_hi, spectrum.size - 1)
 
-t = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-  spectrum = fft.(samples).first(cs / 2).map(&:abs)
-  $stderr.puts "fft: #{((Process.clock_gettime(Process::CLOCK_MONOTONIC) - t) * 1000).round(2)}ms"
-        
         energy = rms ** 2
         energy_history.shift
         energy_history.push(energy)
