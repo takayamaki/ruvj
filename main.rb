@@ -43,6 +43,7 @@ class RuVJ < Gosu::Window
   def button_down(id)
     case id
     when Gosu::KB_ESCAPE then close
+    when Gosu::KB_F11    then self.fullscreen = !fullscreen?
     when Gosu::KB_SPACE  then @beat.tap!
     when Gosu::KB_R      then @last_loaded = Time.at(0)
     when Gosu::KB_UP     then @beat.bpm += 1
