@@ -1,6 +1,6 @@
 ---
 name: log-progress
-description: ストーリー/Task完了時にNotionの「開発日誌」へ当日の作業を追記し、未着手の将来タスクがあればNotion Task DBに起票する。引数で当日トピックの短い説明（任意）を受ける。
+description: 「開発日誌書こう」「日誌つけよう」「ログ残そう」など、作業記録・振り返りを求められたときにNotionの「開発日誌」へ当日の作業を追記する。未着手の将来タスクがあればNotion Task DBに起票。引数で当日トピックの短い説明（任意）を受ける。
 ---
 
 # /log-progress
