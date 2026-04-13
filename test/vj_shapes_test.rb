@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 
+# GosuRenderer が内部で使う Gosu モジュールのフェイク
 module Gosu
   class Color
     attr_reader :alpha, :red, :green, :blue
@@ -11,11 +12,15 @@ module Gosu
   DrawCall = Struct.new(:method, :args)
   DRAW_LOG = []
 
-  def self.draw_rect(*args)   = DRAW_LOG << DrawCall.new(:rect,     args)
-  def self.draw_triangle(*args) = DRAW_LOG << DrawCall.new(:triangle, args)
-  def self.draw_line(*args)   = DRAW_LOG << DrawCall.new(:line,     args)
+  def self.draw_rect(*args)      = DRAW_LOG << DrawCall.new(:rect,     args)
+  def self.draw_triangle(*args)  = DRAW_LOG << DrawCall.new(:triangle, args)
+  def self.draw_line(*args)      = DRAW_LOG << DrawCall.new(:line,     args)
+  def self.translate(x, y)       = yield
+  def self.scale(sx, sy = sx)    = yield
 end
 
+require_relative '../renderer/base'
+require_relative '../renderer/gosu'
 require_relative '../vj_shapes'
 
 class VjPxTest < Minitest::Test
@@ -47,6 +52,11 @@ class ShapesTest < Minitest::Test
 
   def setup
     Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
   end
 
   # --- Bg ---
@@ -69,7 +79,6 @@ class ShapesTest < Minitest::Test
   # --- Circle ---
   def test_circle_at_origin_draws_at_screen_center
     Circle(r: 1, color: [0, 1, 1])
-    # 中心点は全三角形の最初の頂点（cx, cy）が画面中央
     cx, cy = Gosu::DRAW_LOG.first.args[0], Gosu::DRAW_LOG.first.args[1]
     assert_in_delta 640.0, cx, 0.001
     assert_in_delta 360.0, cy, 0.001
@@ -86,7 +95,6 @@ class ShapesTest < Minitest::Test
   def test_rect_at_origin_centers_on_screen
     Rect(w: 2, h: 1, color: [0, 1, 1])
     call = Gosu::DRAW_LOG.first
-    # draw_rect(x, y, w, h, color, z) — 左上座標は中央からw/2,h/2ずれる
     assert_in_delta 640.0 - 1 * UNIT, call.args[0], 0.001
     assert_in_delta 360.0 - 0.5 * UNIT, call.args[1], 0.001
   end
@@ -115,51 +123,58 @@ class ShapesTest < Minitest::Test
   end
 end
 
-class HsvArrayToColorTest < Minitest::Test
+class HsvToColorTest < Minitest::Test
   include VjShapes
 
   def test_red_hsv_produces_high_red_component
-    c = hsv_to_gosu([0, 1, 1])
-    assert_operator c.red,   :>, 200
-    assert_operator c.green, :<, 10
-    assert_operator c.blue,  :<, 10
+    r, g, b, _a = hsv_to_color([0, 1, 1])
+    assert_operator r, :>, 200
+    assert_operator g, :<, 10
+    assert_operator b, :<, 10
   end
 
   def test_green_hsv_produces_high_green_component
-    c = hsv_to_gosu([120, 1, 1])
-    assert_operator c.green, :>, 200
-    assert_operator c.red,   :<, 10
-    assert_operator c.blue,  :<, 10
+    _r, g, b, _a = hsv_to_color([120, 1, 1])
+    assert_operator g, :>, 200
+    assert_operator b, :<, 10
   end
 
   def test_blue_hsv_produces_high_blue_component
-    c = hsv_to_gosu([240, 1, 1])
-    assert_operator c.blue,  :>, 200
-    assert_operator c.red,   :<, 10
-    assert_operator c.green, :<, 10
+    r, _g, b, _a = hsv_to_color([240, 1, 1])
+    assert_operator b, :>, 200
+    assert_operator r, :<, 10
   end
 
   def test_alpha_defaults_to_255
-    c = hsv_to_gosu([0, 1, 1])
-    assert_equal 255, c.alpha
+    _r, _g, _b, a = hsv_to_color([0, 1, 1])
+    assert_equal 255, a
   end
 
   def test_alpha_can_be_specified_as_fourth_element
-    c = hsv_to_gosu([0, 1, 1, 128])
-    assert_equal 128, c.alpha
+    _r, _g, _b, a = hsv_to_color([0, 1, 1, 128])
+    assert_equal 128, a
   end
 
   def test_hue_wraps_around_360
-    c1 = hsv_to_gosu([0,   1, 1])
-    c2 = hsv_to_gosu([360, 1, 1])
-    assert_equal c1.red,   c2.red
-    assert_equal c1.green, c2.green
-    assert_equal c1.blue,  c2.blue
+    r1, g1, b1, _ = hsv_to_color([0,   1, 1])
+    r2, g2, b2, _ = hsv_to_color([360, 1, 1])
+    assert_equal r1, r2
+    assert_equal g1, g2
+    assert_equal b1, b2
   end
 end
 
 class PolarTest < Minitest::Test
   include VjShapes
+
+  def setup
+    Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
+  end
 
   # --- 基本軸 ---
   def test_angle_0_points_right
@@ -188,7 +203,6 @@ class PolarTest < Minitest::Test
 
   # --- ** 展開 ---
   def test_can_splat_into_keyword_args
-    Gosu::DRAW_LOG.clear
     Circle(**polar(2, 0), r: 1, color: [0, 1, 1])
     cx = Gosu::DRAW_LOG.first.args[0]
     assert_in_delta 640.0 + 2 * UNIT, cx, 0.001

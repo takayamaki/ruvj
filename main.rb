@@ -5,6 +5,7 @@ require_relative 'beat'
 require_relative 'audio'
 require_relative 'vj_context'
 require_relative 'vj_shapes'
+require_relative 'renderer/gosu'
 
 class RuVJ < Gosu::Window
   include VjShapes
@@ -12,6 +13,9 @@ class RuVJ < Gosu::Window
   def initialize
     super(W, H, resizable: true)
     self.caption = 'RuVJ'
+
+    @renderer = GosuRenderer.new
+    VjRenderer.use(@renderer)
 
     @beat  = Beat.new
     @audio = Audio.new(beat_fallback: @beat)
@@ -34,7 +38,7 @@ class RuVJ < Gosu::Window
     s  = [width.to_f / W, height.to_f / H].max
     ox = (width  - W * s) / 2.0
     oy = (height - H * s) / 2.0
-    Gosu.translate(ox, oy) { Gosu.scale(s, s) { draw_scene } }
+    @renderer.translate(ox, oy) { @renderer.scale(s) { draw_scene } }
   rescue Exception => e
     $stderr.puts "draw error: #{e.message}"
   end

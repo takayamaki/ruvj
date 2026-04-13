@@ -15,14 +15,13 @@ module AudioStub
       @amp = amp; @low = low; @mid = mid; @hi = hi
     end
 
-    def beat? = false
-    def spectrum = @spectrum
-    def waveform = @waveform
+    def beat?       = false
+    def spectrum    = @spectrum
+    def waveform    = @waveform
+    def sample_rate = SAMPLE_RATE
+    def fft_size    = CHUNK_SIZE / 2
   end
 end
-
-# Audio 定数を解決するためのエイリアス
-Audio = AudioStub unless defined?(Audio)
 
 require_relative '../vj_context'
 

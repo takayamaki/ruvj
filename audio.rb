@@ -3,6 +3,9 @@ class Audio
   CHUNK_SIZE         = 1024
   ENERGY_FRAMES      = 43
   CALIBRATION_CHUNKS = 23   # ~500ms (48000/1024 ≈ 47 chunks/sec)
+
+  def sample_rate = SAMPLE_RATE
+  def fft_size    = CHUNK_SIZE / 2
 end
 
 require_relative 'audio/band_tracker'

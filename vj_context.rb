@@ -53,7 +53,7 @@ class VJContext
     bins.times { |k| @spec_bin_peaks[k] = [@spec_bin_peaks[k] * 0.995, raw[k], 0.001].max }
     normalized = Array.new(bins) { |k| (raw[k] / @spec_bin_peaks[k]).clamp(0.0, 1.0) }
 
-    bin_hz   = Audio::SAMPLE_RATE.to_f / Audio::CHUNK_SIZE
+    bin_hz   = @audio.sample_rate.to_f / @audio.fft_size
     f_min    = bin_hz
     f_max    = bin_hz * (bins - 1)
     log_span = Math.log(f_max / f_min)
