@@ -1,0 +1,14 @@
+{
+  "name": "ruvj",
+  "private": true,
+  "scripts": {
+    "serve": "serve . -l 8080"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
+  "dependencies": {
+    "@ruby/3.3-wasm-wasi": "2.9.3-2.9.4",
+    "@ruby/wasm-wasi": "2.9.3-2.9.4"
+  }
+}

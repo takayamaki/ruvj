@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>RuVJ WASM</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; color: #ccc; font-family: monospace; display: flex; height: 100vh; overflow: hidden; }
+
+    #left { flex: 1; display: flex; flex-direction: column; position: relative; }
+    canvas {
+      width: 100%; height: calc(100% - 32px);
+      display: block; background: #000;
+    }
+    #status { height: 32px; line-height: 32px; padding: 0 8px; font-size: 12px; background: #1a1a1a; }
+
+    #right { width: 400px; display: flex; flex-direction: column; background: #1a1a1a; border-left: 1px solid #333; }
+    #right h2 { font-size: 12px; padding: 6px 8px; background: #222; border-bottom: 1px solid #333; }
+    textarea#visual-src {
+      flex: 1; background: #0d1117; color: #c9d1d9; font-family: monospace; font-size: 12px;
+      padding: 8px; border: none; outline: none; resize: none; tab-size: 2;
+    }
+    #controls { padding: 6px 8px; background: #222; border-top: 1px solid #333; font-size: 11px; }
+    #controls kbd { background: #333; padding: 1px 4px; border-radius: 2px; }
+
+    /* スタートオーバーレイ */
+    #overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.85); gap: 16px;
+    }
+    #overlay p { font-size: 13px; color: #888; }
+    #start-btn {
+      font: 700 18px monospace; padding: 12px 40px;
+      background: #1a1a1a; color: #ccc; border: 1px solid #555;
+      cursor: pointer; letter-spacing: 0.05em;
+    }
+    #start-btn:hover { background: #252525; border-color: #888; }
+    #overlay.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="left">
+    <canvas id="canvas" width="1280" height="720"></canvas>
+    <div id="status">RuVJ WASM — 読み込み中...</div>
+
+    <div id="overlay">
+      <button id="start-btn">▶ START</button>
+      <p>マイク入力を使用します。許可してください。</p>
+    </div>
+  </div>
+
+  <div id="right">
+    <h2>visual.rb — textarea を編集すると即時反映</h2>
+    <textarea id="visual-src" spellcheck="false">def draw_scene
+  Bg(color: [0, 0, 0.05])
+
+  @vj.spectrum(32).each_with_index do |v, i|
+    t = i / 32.0 * Math::PI * 2
+    p1 = polar(3, t)
+    p2 = polar(3 + v * 4, t)
+    Line(x1: p1[:x], y1: p1[:y], x2: p2[:x], y2: p2[:y], color: [i * 11, 1, 1])
+  end
+
+  w = @vj.waveform
+  w.each_with_index do |v, i|
+    next unless w[i + 1]
+    x = i / 8.0 - 16
+    Line(x1: x, y1: v * 5, x2: x + 0.125, y2: w[i + 1] * 5, color: [120 + @vj.amp * 60, 1, 1])
+  end
+end</textarea>
+    <div id="controls">
+      <kbd>Space</kbd> BPMタップ &nbsp;
+      <kbd>↑</kbd><kbd>↓</kbd> BPM±1
+    </div>
+  </div>
+
+  <!-- ruby.wasm (ローカル固定バージョン) -->
+  <script src="node_modules/@ruby/wasm-wasi/dist/browser.umd.js"></script>
+  <script>
+    (async () => {
+      const { DefaultRubyVM } = window["ruby-wasm-wasi"];
+
+      const response = fetch("node_modules/@ruby/3.3-wasm-wasi/dist/ruby+stdlib.wasm");
+      const module = await WebAssembly.compileStreaming(response);
+      const { vm } = await DefaultRubyVM(module);
+      globalThis.rubyVM = vm;  // rAF ループ・キーボードから参照
+      console.log("[load] RubyVM ready");
+
+      // WASM VFS にソースファイルを書き込む。
+      // evalAsync はファイルコンテキストを持たないため require_relative が /xxx に解決される。
+      // load '/main_wasm.rb' で __FILE__ = /main_wasm.rb になれば require_relative が正しく動く。
+      const sources = [
+        "beat.rb",
+        "vj_context.rb",
+        "vj_shapes.rb",
+        "renderer/base.rb",
+        "renderer/webgl.rb",
+        "audio_source/web_audio.rb",
+        "main_wasm.rb",
+      ];
+
+      // JSON.stringify で渡すと Ruby 文字列中の #{...} が展開されてしまうため Base64 経由で渡す
+      function toBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let bin = "";
+        for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+
+      vm.eval("require 'base64'");
+
+      for (const path of sources) {
+        const content = await fetch(path).then(r => r.text());
+        const dir = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : null;
+        if (dir) vm.eval(`Dir.mkdir('/${dir}') rescue nil`);
+        const b64 = toBase64(content);
+        vm.eval(`File.write('/${path}', Base64.decode64(${JSON.stringify(b64)}))`);
+        console.log("[load] wrote /" + path);
+      }
+
+      console.log("[load] loading main_wasm.rb via load...");
+      await vm.evalAsync("load '/main_wasm.rb'");
+      console.log("[load] boot complete");
+
+      // PendingStart: STARTボタンが先に押されていた場合、ループを開始
+      if (window.__ruVjPendingStart && window.__ruVjReady) {
+        window.startLoop();
+      }
+    })().catch(e => console.error("[ruby-wasm] boot error:", e));
+  </script>
+
+  <script>
+    document.getElementById('start-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true;
+      btn.textContent = '起動中...';
+
+      // ユーザー操作後に AudioContext を生成（Autoplay Policy 対策）
+      const ctx      = new AudioContext();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.0;  // Ruby 側でスムージング
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const src = ctx.createMediaStreamSource(stream);
+        src.connect(analyser);
+      } catch (e) {
+        console.warn('マイク取得失敗 (ビートフォールバックで動作):', e);
+      }
+
+      // Ruby 側から参照できるよう window に露出
+      window.__ruVjAudioCtx  = ctx;
+      window.__ruVjAnalyser  = analyser;
+
+      // Ruby の準備ができていれば起動、まだなら待機フラグを立てる
+      if (window.__ruVjStart) {
+        window.__ruVjStart();
+        startLoop();
+      } else {
+        window.__ruVjPendingStart = true;
+      }
+
+      document.getElementById('overlay').classList.add('hidden');
+    });
+
+    // rAF ループ（START後に startLoop() で起動）
+    window.startLoop = function startLoop() {
+      let last = performance.now(), frames = 0;
+      (function loop() {
+        rubyVM.evalAsync("$ruvj_app.tick").then(() => {
+          frames++;
+          const now = performance.now();
+          if (now - last > 1000) {
+            const fps = (frames * 1000 / (now - last)).toFixed(1);
+            frames = 0; last = now;
+            document.getElementById('status').textContent = `RuVJ WASM — ${fps} fps`;
+          }
+          requestAnimationFrame(loop);
+        }).catch(e => {
+          console.error('[rAF] tick error:', e);
+          requestAnimationFrame(loop);  // エラーでもループ継続
+        });
+      })();
+    }
+
+    // キーボード処理
+    document.addEventListener('keydown', e => {
+      if (!window.__ruVjReady) return;
+      if (e.key === ' ') {
+        e.preventDefault();
+        rubyVM.evalAsync("$ruvj_app.tap_beat");
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        rubyVM.evalAsync("$ruvj_app.bpm_up");
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        rubyVM.evalAsync("$ruvj_app.bpm_down");
+      }
+    });
+  </script>
+</body>
+</html>
