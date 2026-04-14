@@ -5,29 +5,39 @@
   <title>RuVJ WASM</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; color: #ccc; font-family: monospace; display: flex; height: 100vh; overflow: hidden; }
+    body { background: #000; color: #ccc; font-family: monospace; width: 100vw; height: 100vh; overflow: hidden; position: relative; }
 
-    #left { flex: 1; display: flex; flex-direction: column; position: relative; }
     canvas {
-      width: 100%; height: calc(100% - 32px);
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
       display: block; background: #000;
     }
-    #status { height: 32px; line-height: 32px; padding: 0 8px; font-size: 12px; background: #1a1a1a; }
-
-    #right { width: 400px; display: flex; flex-direction: column; background: #1a1a1a; border-left: 1px solid #333; }
-    #right h2 { font-size: 12px; padding: 6px 8px; background: #222; border-bottom: 1px solid #333; }
-    textarea#visual-src {
-      flex: 1; background: #0d1117; color: #c9d1d9; font-family: monospace; font-size: 12px;
-      padding: 8px; border: none; outline: none; resize: none; tab-size: 2;
+    #status {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 24px; line-height: 24px; padding: 0 8px; font-size: 11px;
+      background: rgba(0,0,0,0.5); color: #666;
+      pointer-events: none;
     }
-    #controls { padding: 6px 8px; background: #222; border-top: 1px solid #333; font-size: 11px; }
-    #controls kbd { background: #333; padding: 1px 4px; border-radius: 2px; }
+
+    #right {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      background: rgba(13,17,23,0.15);
+    }
+    #right h2 { font-size: 11px; padding: 5px 8px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.08); color: #555; }
+    textarea#visual-src {
+      flex: 1; background: transparent; color: #c9d1d9; font-family: monospace; font-size: 1vw;
+      padding: 8px; border: none; outline: none; resize: none; tab-size: 2; overflow-y: auto;
+      text-shadow: 0 1px 4px #000, 0 0 8px #000;
+    }
+    #controls { padding: 5px 8px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #555; }
+    #controls kbd { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px; }
 
     /* スタートオーバーレイ */
     #overlay {
       position: absolute; inset: 0;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.85); gap: 16px;
+      background: rgba(0,0,0,0.85); gap: 16px; z-index: 10;
     }
     #overlay p { font-size: 13px; color: #888; }
     #start-btn {
@@ -40,14 +50,12 @@
   </style>
 </head>
 <body>
-  <div id="left">
-    <canvas id="canvas" width="1280" height="720"></canvas>
-    <div id="status">RuVJ WASM — 読み込み中...</div>
+  <canvas id="canvas" width="1280" height="720"></canvas>
+  <div id="status">RuVJ WASM — 読み込み中...</div>
 
-    <div id="overlay">
-      <button id="start-btn">▶ START</button>
-      <p>マイク入力を使用します。許可してください。</p>
-    </div>
+  <div id="overlay">
+    <button id="start-btn">▶ START</button>
+    <p>マイク入力を使用します。許可してください。</p>
   </div>
 
   <div id="right">
