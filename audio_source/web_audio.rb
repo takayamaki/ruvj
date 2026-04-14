@@ -27,6 +27,8 @@ class WebAudioSource
 
     @freq_data = JS.global[:Float32Array].new(@bins)
     @time_data = JS.global[:Float32Array].new(@fft_size)
+    @db_min = @analyser[:minDecibels].to_f  # default -100
+    @db_max = @analyser[:maxDecibels].to_f  # default -30
 
     @amp = @low = @mid = @hi = 0.0
     @spectrum = Array.new(@bins, 0.0)
@@ -44,10 +46,12 @@ class WebAudioSource
 
     bin_hz = sample_rate.to_f / @fft_size
 
-    # dBFS → linear (0–1): WebAudio は -Infinity〜0 dBFS を返す
+    # dBFS → 0–1: minDecibels〜maxDecibels の範囲で線形正規化
+    # (dB空間での線形補間。人間の聴感はすでに対数なのでこれで十分)
+    db_range = @db_max - @db_min
     raw = Array.new(@bins) { |k|
       db = @freq_data[k].to_f
-      db <= -100.0 ? 0.0 : (10.0 ** ((db + 100.0) / 20.0) / 10.0).clamp(0.0, 1.0)
+      ((db - @db_min) / db_range).clamp(0.0, 1.0)
     }
     @spectrum = raw
 

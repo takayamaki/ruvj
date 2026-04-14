@@ -143,6 +143,8 @@ end</textarea>
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 2048;
       analyser.smoothingTimeConstant = 0.0;  // Ruby 側でスムージング
+      analyser.minDecibels = -100;
+      analyser.maxDecibels = -5;  // デフォルト -30 は張り付くので広げる
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
