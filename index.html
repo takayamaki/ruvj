@@ -78,8 +78,8 @@
   end
 end</textarea>
     <div id="controls">
-      <kbd>Space</kbd> BPMタップ &nbsp;
-      <kbd>↑</kbd><kbd>↓</kbd> BPM±1
+      <kbd>Ctrl</kbd>+<kbd>Space</kbd> BPMタップ &nbsp;
+      <kbd>Ctrl</kbd>+<kbd>↑</kbd><kbd>↓</kbd> BPM±1
     </div>
   </div>
 
@@ -195,7 +195,7 @@ end</textarea>
 
     // キーボード処理
     document.addEventListener('keydown', e => {
-      if (!window.__ruVjReady) return;
+      if (!window.__ruVjReady || !e.ctrlKey) return;
       if (e.key === ' ') {
         e.preventDefault();
         rubyVM.evalAsync("$ruvj_app.tap_beat");
