@@ -3,8 +3,8 @@ GC.auto_compact = false  # Gosu 1.4.6 が Ruby 4.0 コンパクション未対�
 require 'gosu'
 require_relative 'beat'
 require_relative 'audio'
-require_relative 'vj_context'
-require_relative 'vj_shapes'
+require_relative '../lib/vj_context'
+require_relative '../lib/vj_shapes'
 require_relative 'renderer/gosu'
 
 class RuVJ < Gosu::Window
@@ -21,7 +21,7 @@ class RuVJ < Gosu::Window
     @audio = Audio.new(beat_fallback: @beat)
     @vj    = VJContext.new(beat: @beat, audio: @audio)
 
-    @visual_path  = File.expand_path('visual.rb', __dir__)
+    @visual_path  = File.expand_path('../visual.rb', __dir__)
     @last_loaded  = Time.at(0)
     reload_visual
   end

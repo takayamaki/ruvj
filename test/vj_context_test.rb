@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require_relative '../beat'
+require_relative '../native/beat'
 
 # Audio スタブ（Ractor なし、テスト用）
 module AudioStub
@@ -23,7 +23,7 @@ module AudioStub
   end
 end
 
-require_relative '../vj_context'
+require_relative '../lib/vj_context'
 
 class VJContextSpectrumTest < Minitest::Test
   def setup

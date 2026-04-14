@@ -1,4 +1,4 @@
-require_relative 'base'
+require_relative '../../lib/renderer/base'
 
 class WebGLRenderer
   VERTEX_FLOATS = 6  # x, y, r, g, b, a per vertex

@@ -92,14 +92,14 @@ end</textarea>
 
       // WASM VFS にソースファイルを書き込む。
       // evalAsync はファイルコンテキストを持たないため require_relative が /xxx に解決される。
-      // load '/main_wasm.rb' で __FILE__ = /main_wasm.rb になれば require_relative が正しく動く。
+      // load '/wasm/main.rb' で __FILE__ = /wasm/main.rb になれば require_relative が正しく動く。
       const sources = [
-        "vj_context.rb",
-        "vj_shapes.rb",
-        "renderer/base.rb",
-        "renderer/webgl.rb",
-        "audio_source/web_audio.rb",
-        "main_wasm.rb",
+        "lib/vj_context.rb",
+        "lib/vj_shapes.rb",
+        "lib/renderer/base.rb",
+        "wasm/renderer/webgl.rb",
+        "wasm/audio/web_audio.rb",
+        "wasm/main.rb",
       ];
 
       // JSON.stringify で渡すと Ruby 文字列中の #{...} が展開されてしまうため Base64 経由で渡す
@@ -114,15 +114,20 @@ end</textarea>
 
       for (const path of sources) {
         const content = await fetch(path).then(r => r.text());
-        const dir = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : null;
-        if (dir) vm.eval(`Dir.mkdir('/${dir}') rescue nil`);
+        // ネストしたディレクトリを順番に作成
+        const parts = path.split('/').slice(0, -1);
+        parts.reduce((acc, part) => {
+          const p = acc + '/' + part;
+          vm.eval(`Dir.mkdir('${p}') rescue nil`);
+          return p;
+        }, '');
         const b64 = toBase64(content);
         vm.eval(`File.write('/${path}', Base64.decode64(${JSON.stringify(b64)}))`);
         console.log("[load] wrote /" + path);
       }
 
-      console.log("[load] loading main_wasm.rb via load...");
-      await vm.evalAsync("load '/main_wasm.rb'");
+      console.log("[load] loading wasm/main.rb via load...");
+      await vm.evalAsync("load '/wasm/main.rb'");
       console.log("[load] boot complete");
 
       // PendingStart: STARTボタンが先に押されていた場合、ループを開始

@@ -19,9 +19,9 @@ module Gosu
   def self.scale(sx, sy = sx)    = yield
 end
 
-require_relative '../renderer/base'
-require_relative '../renderer/gosu'
-require_relative '../vj_shapes'
+require_relative '../lib/renderer/base'
+require_relative '../native/renderer/gosu'
+require_relative '../lib/vj_shapes'
 
 class VjPxTest < Minitest::Test
   include VjShapes

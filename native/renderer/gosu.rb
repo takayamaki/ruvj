@@ -1,4 +1,4 @@
-require_relative 'base'
+require_relative '../../lib/renderer/base'
 
 class GosuRenderer
   def draw_triangle(x1, y1, c1, x2, y2, c2, x3, y3, c3, z = 0)

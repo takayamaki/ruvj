@@ -1,16 +1,16 @@
 require 'js'
 JS.eval("console.log('[RuVJ] script start')")
 
-begin; require_relative 'vj_context';            JS.eval("console.log('[RuVJ] vj_context loaded')")
+begin; require_relative '../lib/vj_context';      JS.eval("console.log('[RuVJ] vj_context loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_context: #{e.message}')"); end
 
-begin; require_relative 'vj_shapes';             JS.eval("console.log('[RuVJ] vj_shapes loaded')")
+begin; require_relative '../lib/vj_shapes';       JS.eval("console.log('[RuVJ] vj_shapes loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_shapes: #{e.message}')"); end
 
 begin; require_relative 'renderer/webgl';        JS.eval("console.log('[RuVJ] renderer/webgl loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED renderer/webgl: #{e.message}')"); end
 
-begin; require_relative 'audio_source/web_audio'; JS.eval("console.log('[RuVJ] audio_source/web_audio loaded')")
+begin; require_relative 'audio/web_audio';        JS.eval("console.log('[RuVJ] audio/web_audio loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED audio_source/web_audio: #{e.message}')"); end
 
 JS.eval("console.log('[RuVJ] all requires done')")
