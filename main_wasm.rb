@@ -1,9 +1,6 @@
 require 'js'
 JS.eval("console.log('[RuVJ] script start')")
 
-begin; require_relative 'beat';                  JS.eval("console.log('[RuVJ] beat loaded')")
-rescue => e; JS.eval("console.error('[RuVJ] FAILED beat: #{e.message}')"); end
-
 begin; require_relative 'vj_context';            JS.eval("console.log('[RuVJ] vj_context loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_context: #{e.message}')"); end
 
@@ -25,16 +22,14 @@ class RuVJWasm
     JS.eval("console.log('[RuVJ] RuVJWasm.new')")
     @renderer = WebGLRenderer.new(canvas_id: 'canvas')
     VjRenderer.use(@renderer)
-    @beat  = Beat.new
     @audio = WebAudioSource.new
-    @vj    = VJContext.new(beat: @beat, audio: @audio)
+    @vj    = VJContext.new(audio: @audio)
     @last_src   = nil
     @tick_count = 0
     JS.eval("console.log('[RuVJ] RuVJWasm ready')")
   end
 
   def tick
-    @beat.update
     @audio.update
     @vj.update
     check_hot_reload
@@ -50,10 +45,6 @@ class RuVJWasm
   rescue => e
     JS.global[:console].call(:error, "[RuVJ] tick error: #{e.message} @ #{e.backtrace&.first}")
   end
-
-  def tap_beat    = @beat.tap!
-  def bpm_up      = @beat.bpm += 1
-  def bpm_down    = @beat.bpm -= 1
 
   def draw_scene
     Bg(color: [0, 0, 0])
@@ -74,8 +65,7 @@ class RuVJWasm
   end
 end
 
-# JS 側から $ruvj_app.tick / tap_beat / bpm_up / bpm_down を呼ぶ
-# rAF ループおよびキーボードは index.html の JS が担当
+# JS 側から $ruvj_app.tick を呼ぶ。rAF ループは index.html の JS が担当
 JS.eval("console.log('[RuVJ] registering __ruVjStart')")
 JS.global[:__ruVjStart] = -> {
   JS.eval("console.log('[RuVJ] __ruVjStart called')")

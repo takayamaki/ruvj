@@ -1,5 +1,5 @@
 class VJContext
-  def initialize(beat:, audio: nil)
+  def initialize(beat: nil, audio: nil)
     @beat       = beat
     @audio      = audio
     @started_at = Time.now
@@ -30,9 +30,9 @@ class VJContext
 
   def beat  = @beat_val
 
-  def phase = @beat.phase
-  def bpm   = @beat.bpm
-  def count = @beat.count
+  def phase = @beat&.phase || 0.0
+  def bpm   = @beat&.bpm   || 0
+  def count = @beat&.count || 0
 
   def amp = @amp_val
   def low = @low_val

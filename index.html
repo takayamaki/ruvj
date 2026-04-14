@@ -30,8 +30,7 @@
       padding: 8px; border: none; outline: none; resize: none; tab-size: 2; overflow-y: auto;
       text-shadow: 0 1px 4px #000, 0 0 8px #000;
     }
-    #controls { padding: 5px 8px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #555; }
-    #controls kbd { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px; }
+
 
     /* スタートオーバーレイ */
     #overlay {
@@ -77,10 +76,6 @@
     Line(x1: x, y1: v * 5, x2: x + 0.125, y2: w[i + 1] * 5, color: [120 + @vj.amp * 60, 1, 1])
   end
 end</textarea>
-    <div id="controls">
-      <kbd>Ctrl</kbd>+<kbd>Space</kbd> BPMタップ &nbsp;
-      <kbd>Ctrl</kbd>+<kbd>↑</kbd><kbd>↓</kbd> BPM±1
-    </div>
   </div>
 
   <!-- ruby.wasm (ローカル固定バージョン) -->
@@ -99,7 +94,6 @@ end</textarea>
       // evalAsync はファイルコンテキストを持たないため require_relative が /xxx に解決される。
       // load '/main_wasm.rb' で __FILE__ = /main_wasm.rb になれば require_relative が正しく動く。
       const sources = [
-        "beat.rb",
         "vj_context.rb",
         "vj_shapes.rb",
         "renderer/base.rb",
@@ -193,20 +187,6 @@ end</textarea>
       })();
     }
 
-    // キーボード処理
-    document.addEventListener('keydown', e => {
-      if (!window.__ruVjReady || !e.ctrlKey) return;
-      if (e.key === ' ') {
-        e.preventDefault();
-        rubyVM.evalAsync("$ruvj_app.tap_beat");
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        rubyVM.evalAsync("$ruvj_app.bpm_up");
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        rubyVM.evalAsync("$ruvj_app.bpm_down");
-      }
-    });
   </script>
 </body>
 </html>
