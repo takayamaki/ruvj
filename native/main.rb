@@ -6,10 +6,12 @@ require_relative 'audio'
 require_relative 'osc_receiver'
 require_relative '../lib/vj_context'
 require_relative '../lib/vj_shapes'
+require_relative '../lib/vj_effects/spectrum'
 require_relative 'renderer/gosu'
 
 class RuVJ < Gosu::Window
   include VjShapes
+  include VjEffects::Spectrum
 
   def initialize
     super(W, H, resizable: true)
