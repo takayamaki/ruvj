@@ -256,11 +256,16 @@ class TextTest < Minitest::Test
   end
 
   def test_align_h_center_shifts_left_by_half_text_width
-    skip 'pending'
+    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1], align_h: :center)
+    x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
+    # text_width = 3文字 * 40 * 0.6 = 72, 中心揃えで -36
+    assert_in_delta 640.0 - 36.0, x, 0.001
   end
 
   def test_align_h_right_shifts_left_by_full_text_width
-    skip 'pending'
+    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1], align_h: :right)
+    x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
+    assert_in_delta 640.0 - 72.0, x, 0.001
   end
 
   # --- 垂直アライン ---
