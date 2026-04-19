@@ -215,32 +215,32 @@ class TextTest < Minitest::Test
     refute_nil call, 'Text が draw_text を呼んでいない'
     text, x, y, _z, _sx, _sy, _color, height = call.args
     assert_equal 'hi', text
-    # align_h: :left (default) なので x はそのまま vj_px(0,0)[0] = 640.0
+    # align_x: :left (default) なので x はそのまま vj_px(0,0)[0] = 640.0
     assert_in_delta 640.0, x, 0.001
-    # align_v: :middle (default) なので y は vj_px(0,0)[1] - height/2 = 360 - 40/2 = 340
+    # align_y: :middle (default) なので y は vj_px(0,0)[1] - height/2 = 360 - 40/2 = 340
     assert_in_delta 340.0, y, 0.001
     assert_equal UNIT, height
   end
 
   # --- 位置 ---
   def test_text_xy_is_converted_to_pixels_via_vj_px
-    Text('x', x: 2, y: 1, size: 1, color: [0, 1, 1])
+    Text('x', x: 2, y: 1, size: 1, color: {h: 0, s: 1, v: 1})
     _, x, y, = Gosu::DRAW_LOG.find { |c| c.method == :text }.args
-    # vj_px(2, 1) = [720, 320], align_v :middle で -20
+    # vj_px(2, 1) = [720, 320], align_y :middle で -20
     assert_in_delta 720.0, x, 0.001
     assert_in_delta 300.0, y, 0.001
   end
 
   # --- サイズ ---
   def test_size_is_scaled_by_unit_to_font_height
-    Text('s', x: 0, y: 0, size: 2, color: [0, 1, 1])
+    Text('s', x: 0, y: 0, size: 2, color: {h: 0, s: 1, v: 1})
     height = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[7]
     assert_in_delta UNIT * 2, height, 0.001
   end
 
   # --- 色 ---
   def test_color_is_converted_from_hsv
-    Text('c', x: 0, y: 0, size: 1, color: [0, 1, 1])  # HSV赤
+    Text('c', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})  # HSV赤
     color = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[6]
     assert_operator color.red,   :>, 200
     assert_operator color.green, :<, 10
@@ -248,43 +248,43 @@ class TextTest < Minitest::Test
   end
 
   # --- 水平アライン ---
-  def test_align_h_left_is_default_and_anchor_is_x
-    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1])
+  def test_align_x_left_is_default_and_anchor_is_x
+    Text('abc', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
     x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
     # 左揃え: vj_px(0,0)[0] そのまま
     assert_in_delta 640.0, x, 0.001
   end
 
-  def test_align_h_center_shifts_left_by_half_text_width
-    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1], align_h: :center)
+  def test_align_x_center_shifts_left_by_half_text_width
+    Text('abc', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_x: :center)
     x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
     # text_width = 3文字 * 40 * 0.6 = 72, 中心揃えで -36
     assert_in_delta 640.0 - 36.0, x, 0.001
   end
 
-  def test_align_h_right_shifts_left_by_full_text_width
-    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1], align_h: :right)
+  def test_align_x_right_shifts_left_by_full_text_width
+    Text('abc', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_x: :right)
     x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
     assert_in_delta 640.0 - 72.0, x, 0.001
   end
 
   # --- 垂直アライン ---
-  def test_align_v_middle_is_default_and_shifts_up_by_half_height
-    Text('m', x: 0, y: 0, size: 1, color: [0, 1, 1])
+  def test_align_y_middle_is_default_and_shifts_up_by_half_height
+    Text('m', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
     y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
     # vj_px(0,0)[1] = 360, middle で height/2 = 20 上 → 340
     assert_in_delta 340.0, y, 0.001
   end
 
-  def test_align_v_top_anchor_is_y
-    Text('t', x: 0, y: 0, size: 1, color: [0, 1, 1], align_v: :top)
+  def test_align_y_top_anchor_is_y
+    Text('t', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_y: :top)
     y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
     # 上端揃え: vj_px(0,0)[1] = 360 そのまま
     assert_in_delta 360.0, y, 0.001
   end
 
-  def test_align_v_bottom_shifts_up_by_full_height
-    Text('b', x: 0, y: 0, size: 1, color: [0, 1, 1], align_v: :bottom)
+  def test_align_y_bottom_shifts_up_by_full_height
+    Text('b', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_y: :bottom)
     y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
     # 下端揃え: 360 - height(40) = 320
     assert_in_delta 320.0, y, 0.001
@@ -292,13 +292,13 @@ class TextTest < Minitest::Test
 
   # --- その他 ---
   def test_z_is_passed_through
-    Text('z', x: 0, y: 0, size: 1, color: [0, 1, 1], z: 7)
+    Text('z', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, z: 7)
     z = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[3]
     assert_equal 7, z
   end
 
   def test_empty_string_does_not_raise
-    Text('', x: 0, y: 0, size: 1, color: [0, 1, 1])
+    Text('', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
     refute_nil Gosu::DRAW_LOG.find { |c| c.method == :text }
   end
 end

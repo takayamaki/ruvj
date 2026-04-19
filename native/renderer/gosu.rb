@@ -18,15 +18,15 @@ class GosuRenderer
     Gosu.draw_line(x1, y1, gosu_color(c1), x2, y2, gosu_color(c2), z)
   end
 
-  def draw_text(text, x, y, height, color, align_h, align_v, z)
+  def draw_text(text, x, y, height, color, align_x, align_y, z)
     font = (@fonts ||= {})[height] ||= Gosu::Font.new(height)
     w = font.text_width(text)
-    ox = case align_h
+    ox = case align_x
          when :center then -w / 2.0
          when :right  then -w.to_f
          else              0.0
          end
-    oy = case align_v
+    oy = case align_y
          when :top    then 0.0
          when :bottom then -height.to_f
          else              -height / 2.0
