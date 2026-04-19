@@ -129,11 +129,18 @@ class CodeEchoDslTest < Minitest::Test
 
   # 典型: path のファイル内容が行ごとに draw_text される
   def test_draws_one_text_call_per_line_in_file
-    skip 'pending'
+    Tempfile.create(['visual', '.rb']) do |f|
+      f.write("line1\nline2\nline3\n")
+      f.flush
+      CodeEcho(path: f.path)
+      texts = Gosu::DRAW_LOG.select { |c| c.method == :text }.map { |c| c.args[0] }
+      assert_equal %w[line1 line2 line3], texts
+    end
   end
 
   # File.read が失敗（存在しないパス）しても例外にならない
   def test_missing_path_does_not_raise
-    skip 'pending'
+    CodeEcho(path: '/no/such/file.rb')  # 例外を出さなければOK
+    pass
   end
 end
