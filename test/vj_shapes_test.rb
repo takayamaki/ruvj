@@ -210,7 +210,16 @@ class TextTest < Minitest::Test
 
   # --- 典型: 数値HUD的な使い方 ---
   def test_text_at_origin_draws_near_screen_center
-    skip 'pending'
+    Text('hi', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
+    call = Gosu::DRAW_LOG.find { |c| c.method == :text }
+    refute_nil call, 'Text が draw_text を呼んでいない'
+    text, x, y, _z, _sx, _sy, _color, height = call.args
+    assert_equal 'hi', text
+    # align_h: :left (default) なので x はそのまま vj_px(0,0)[0] = 640.0
+    assert_in_delta 640.0, x, 0.001
+    # align_v: :middle (default) なので y は vj_px(0,0)[1] - height/2 = 360 - 40/2 = 340
+    assert_in_delta 340.0, y, 0.001
+    assert_equal UNIT, height
   end
 
   # --- 位置 ---
