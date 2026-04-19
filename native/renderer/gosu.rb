@@ -19,7 +19,8 @@ class GosuRenderer
   end
 
   def draw_text(text, x, y, height, color, align_x, align_y, z)
-    font = (@fonts ||= {})[height] ||= Gosu::Font.new(height)
+    key  = [height.to_i, 1].max
+    font = (@fonts ||= {})[key] ||= Gosu::Font.new(key)
     w = font.text_width(text)
     ox = case align_x
          when :center then -w / 2.0
