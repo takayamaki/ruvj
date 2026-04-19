@@ -224,22 +224,35 @@ class TextTest < Minitest::Test
 
   # --- 位置 ---
   def test_text_xy_is_converted_to_pixels_via_vj_px
-    skip 'pending'
+    Text('x', x: 2, y: 1, size: 1, color: [0, 1, 1])
+    _, x, y, = Gosu::DRAW_LOG.find { |c| c.method == :text }.args
+    # vj_px(2, 1) = [720, 320], align_v :middle で -20
+    assert_in_delta 720.0, x, 0.001
+    assert_in_delta 300.0, y, 0.001
   end
 
   # --- サイズ ---
   def test_size_is_scaled_by_unit_to_font_height
-    skip 'pending'
+    Text('s', x: 0, y: 0, size: 2, color: [0, 1, 1])
+    height = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[7]
+    assert_in_delta UNIT * 2, height, 0.001
   end
 
   # --- 色 ---
   def test_color_is_converted_from_hsv
-    skip 'pending'
+    Text('c', x: 0, y: 0, size: 1, color: [0, 1, 1])  # HSV赤
+    color = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[6]
+    assert_operator color.red,   :>, 200
+    assert_operator color.green, :<, 10
+    assert_operator color.blue,  :<, 10
   end
 
   # --- 水平アライン ---
   def test_align_h_left_is_default_and_anchor_is_x
-    skip 'pending'
+    Text('abc', x: 0, y: 0, size: 1, color: [0, 1, 1])
+    x = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[1]
+    # 左揃え: vj_px(0,0)[0] そのまま
+    assert_in_delta 640.0, x, 0.001
   end
 
   def test_align_h_center_shifts_left_by_half_text_width
@@ -252,7 +265,10 @@ class TextTest < Minitest::Test
 
   # --- 垂直アライン ---
   def test_align_v_middle_is_default_and_shifts_up_by_half_height
-    skip 'pending'
+    Text('m', x: 0, y: 0, size: 1, color: [0, 1, 1])
+    y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
+    # vj_px(0,0)[1] = 360, middle で height/2 = 20 上 → 340
+    assert_in_delta 340.0, y, 0.001
   end
 
   def test_align_v_top_anchor_is_y
@@ -265,11 +281,14 @@ class TextTest < Minitest::Test
 
   # --- その他 ---
   def test_z_is_passed_through
-    skip 'pending'
+    Text('z', x: 0, y: 0, size: 1, color: [0, 1, 1], z: 7)
+    z = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[3]
+    assert_equal 7, z
   end
 
   def test_empty_string_does_not_raise
-    skip 'pending'
+    Text('', x: 0, y: 0, size: 1, color: [0, 1, 1])
+    refute_nil Gosu::DRAW_LOG.find { |c| c.method == :text }
   end
 end
 
