@@ -17,6 +17,23 @@ module Gosu
   def self.draw_line(*args)      = DRAW_LOG << DrawCall.new(:line,     args)
   def self.translate(x, y)       = yield
   def self.scale(sx, sy = sx)    = yield
+
+  class Font
+    attr_reader :height, :options
+    def initialize(height, **opts)
+      @height = height
+      @options = opts
+    end
+
+    # ダミー幅: 1文字 = height * 0.6px (Monospaceっぽい比率)
+    def text_width(text)
+      text.length * @height * 0.6
+    end
+
+    def draw_text(text, x, y, z, sx, sy, color)
+      DRAW_LOG << DrawCall.new(:text, [text, x, y, z, sx, sy, color, @height])
+    end
+  end
 end
 
 require_relative '../lib/renderer/base'
@@ -176,6 +193,74 @@ class ShapesTest < Minitest::Test
     Lissajous(a: 3, b: 2, rx: 4, ry: 4, steps: 16, color: {h: 0, s: 1, v: 1}, bold: 30)
     methods = Gosu::DRAW_LOG.map(&:method).uniq
     assert_equal [:triangle], methods
+  end
+end
+
+class TextTest < Minitest::Test
+  include VjShapes
+
+  def setup
+    Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
+  end
+
+  # --- 典型: 数値HUD的な使い方 ---
+  def test_text_at_origin_draws_near_screen_center
+    skip 'pending'
+  end
+
+  # --- 位置 ---
+  def test_text_xy_is_converted_to_pixels_via_vj_px
+    skip 'pending'
+  end
+
+  # --- サイズ ---
+  def test_size_is_scaled_by_unit_to_font_height
+    skip 'pending'
+  end
+
+  # --- 色 ---
+  def test_color_is_converted_from_hsv
+    skip 'pending'
+  end
+
+  # --- 水平アライン ---
+  def test_align_h_left_is_default_and_anchor_is_x
+    skip 'pending'
+  end
+
+  def test_align_h_center_shifts_left_by_half_text_width
+    skip 'pending'
+  end
+
+  def test_align_h_right_shifts_left_by_full_text_width
+    skip 'pending'
+  end
+
+  # --- 垂直アライン ---
+  def test_align_v_middle_is_default_and_shifts_up_by_half_height
+    skip 'pending'
+  end
+
+  def test_align_v_top_anchor_is_y
+    skip 'pending'
+  end
+
+  def test_align_v_bottom_shifts_up_by_full_height
+    skip 'pending'
+  end
+
+  # --- その他 ---
+  def test_z_is_passed_through
+    skip 'pending'
+  end
+
+  def test_empty_string_does_not_raise
+    skip 'pending'
   end
 end
 
