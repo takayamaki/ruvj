@@ -277,11 +277,17 @@ class TextTest < Minitest::Test
   end
 
   def test_align_v_top_anchor_is_y
-    skip 'pending'
+    Text('t', x: 0, y: 0, size: 1, color: [0, 1, 1], align_v: :top)
+    y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
+    # 上端揃え: vj_px(0,0)[1] = 360 そのまま
+    assert_in_delta 360.0, y, 0.001
   end
 
   def test_align_v_bottom_shifts_up_by_full_height
-    skip 'pending'
+    Text('b', x: 0, y: 0, size: 1, color: [0, 1, 1], align_v: :bottom)
+    y = Gosu::DRAW_LOG.find { |c| c.method == :text }.args[2]
+    # 下端揃え: 360 - height(40) = 320
+    assert_in_delta 320.0, y, 0.001
   end
 
   # --- その他 ---

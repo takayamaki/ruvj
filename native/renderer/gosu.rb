@@ -26,7 +26,12 @@ class GosuRenderer
          when :right  then -w.to_f
          else              0.0
          end
-    font.draw_text(text, x + ox, y - height / 2.0, z, 1, 1, gosu_color(color))
+    oy = case align_v
+         when :top    then 0.0
+         when :bottom then -height.to_f
+         else              -height / 2.0
+         end
+    font.draw_text(text, x + ox, y + oy, z, 1, 1, gosu_color(color))
   end
 
   def translate(x, y, &block)              = Gosu.translate(x, y, &block)
