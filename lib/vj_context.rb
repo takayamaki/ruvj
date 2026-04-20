@@ -1,7 +1,8 @@
 class VJContext
-  def initialize(beat: nil, audio: nil)
+  def initialize(beat: nil, audio: nil, osc: nil)
     @beat       = beat
     @audio      = audio
+    @osc        = osc
     @started_at = Time.now
     @frame      = 0
     @beat_flag  = false
@@ -38,6 +39,7 @@ class VJContext
   def low = @low_val
   def mid = @mid_val
   def hi  = @hi_val
+  def osc(address) = @osc ? @osc[address] : 0.0
 
   def t        = (Time.now - @started_at).to_f
   def frame    = @frame
