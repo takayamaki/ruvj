@@ -123,7 +123,20 @@ class ShapesTest < Minitest::Test
   end
 
   # --- Lissajous ---
+  # Line の x1/x2 は vj_px 通過後のピクセル座標。画面中心 640.0 からの最大偏差が rx*UNIT に収まることを見る
+  def lissajous_x_pixels
+    Gosu::DRAW_LOG.flat_map { |c| [c.args[0], c.args[3]] }
+  end
+
+  def lissajous_y_pixels
+    Gosu::DRAW_LOG.flat_map { |c| [c.args[1], c.args[4]] }
+  end
+
   def test_lissajous_x_amplitude_is_bounded_by_rx
+    Lissajous(a: 3, b: 2, rx: 4, ry: 1, color: [0, 1, 1])
+    xs = lissajous_x_pixels
+    max_dx = xs.map { |x| (x - 640.0).abs }.max
+    assert_in_delta 4 * UNIT, max_dx, 0.5
   end
 
   def test_lissajous_y_amplitude_is_bounded_by_ry
