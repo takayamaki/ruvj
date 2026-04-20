@@ -69,6 +69,18 @@ module VjShapes
     end
   end
 
+  # visual.rb 使用例:
+  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, r: @vj.mid * 6 + 2, color: [200, 1, 1])
+  def Lissajous(a: 3, b: 2, delta: 0, r: 5, steps: 128, color:, z: 0)
+    points = (steps + 1).times.map do |i|
+      t = i * Math::PI * 2 / steps
+      [Math.sin(a * t + delta) * r, Math.sin(b * t) * r]
+    end
+    points.each_cons(2) do |(x1, y1), (x2, y2)|
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z)
+    end
+  end
+
   def polar(r, theta)
     { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end
