@@ -173,6 +173,9 @@ class ShapesTest < Minitest::Test
   end
 
   def test_lissajous_thickness_passes_through_to_line
+    Lissajous(a: 3, b: 2, rx: 4, ry: 4, steps: 16, color: [0, 1, 1], thickness: 0.3)
+    methods = Gosu::DRAW_LOG.map(&:method).uniq
+    assert_equal [:triangle], methods
   end
 end
 

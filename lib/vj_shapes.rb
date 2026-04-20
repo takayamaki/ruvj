@@ -81,14 +81,14 @@ module VjShapes
   end
 
   # visual.rb 使用例:
-  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, color: [200, 1, 1])
-  def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, color:, z: 0)
+  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, thickness: 0.1, color: [200, 1, 1])
+  def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, thickness: 0, color:, z: 0)
     points = (steps + 1).times.map do |i|
       t = i * Math::PI * 2 / steps
       [Math.sin(a * t + delta) * rx, Math.sin(b * t) * ry]
     end
     points.each_cons(2) do |(x1, y1), (x2, y2)|
-      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z)
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z, thickness: thickness)
     end
   end
 
