@@ -123,6 +123,8 @@ class ShapesTest < Minitest::Test
   end
 
   def test_line_with_thickness_zero_uses_draw_line
+    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], thickness: 0)
+    assert_equal [:line], Gosu::DRAW_LOG.map(&:method)
   end
 
   def test_line_with_positive_thickness_draws_quad_as_two_triangles

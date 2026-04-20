@@ -47,7 +47,7 @@ module VjShapes
     end
   end
 
-  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0)
+  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, thickness: 0)
     px1, py1 = vj_px(x1, y1)
     px2, py2 = vj_px(x2, y2)
     c = hsv_to_color(color)
