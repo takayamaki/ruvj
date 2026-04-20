@@ -132,7 +132,13 @@ class ShapesTest < Minitest::Test
     assert_equal [:triangle, :triangle], Gosu::DRAW_LOG.map(&:method)
   end
 
+  # 水平線 (y 一定) に thickness=1 を与えると、y 方向に ±UNIT/2 の幅が出るはず
   def test_line_thickness_spreads_perpendicular_to_line_direction
+    Line(x1: -2, y1: 0, x2: 2, y2: 0, color: [0, 1, 1], thickness: 1)
+    tris = Gosu::DRAW_LOG
+    ys = tris.flat_map { |c| [c.args[1], c.args[4], c.args[7]] }
+    assert_in_delta 360.0 - UNIT / 2.0, ys.min, 0.001
+    assert_in_delta 360.0 + UNIT / 2.0, ys.max, 0.001
   end
 
   # --- Lissajous ---
