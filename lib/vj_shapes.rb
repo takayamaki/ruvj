@@ -47,11 +47,22 @@ module VjShapes
     end
   end
 
-  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0)
+  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, thickness: 0)
     px1, py1 = vj_px(x1, y1)
     px2, py2 = vj_px(x2, y2)
     c = hsv_to_color(color)
-    VjRenderer.current.draw_line(px1, py1, c, px2, py2, c, z)
+    if thickness > 0
+      dx, dy = px2 - px1, py2 - py1
+      len = Math.hypot(dx, dy)
+      return if len == 0
+      half = thickness * UNIT / 2.0
+      ox, oy = -dy / len * half, dx / len * half
+      r = VjRenderer.current
+      r.draw_triangle(px1 - ox, py1 - oy, c, px1 + ox, py1 + oy, c, px2 + ox, py2 + oy, c, z)
+      r.draw_triangle(px1 - ox, py1 - oy, c, px2 + ox, py2 + oy, c, px2 - ox, py2 - oy, c, z)
+    else
+      VjRenderer.current.draw_line(px1, py1, c, px2, py2, c, z)
+    end
   end
 
   def Bg(color:)
@@ -66,6 +77,18 @@ module VjShapes
     segments.times do |i|
       angle = i * 360.0 / segments
       VjRenderer.current.rotate(angle) { instance_eval(&block) }
+    end
+  end
+
+  # visual.rb 使用例:
+  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, thickness: 0.1, color: [200, 1, 1])
+  def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, thickness: 0, color:, z: 0)
+    points = (steps + 1).times.map do |i|
+      t = i * Math::PI * 2 / steps
+      [Math.sin(a * t + delta) * rx, Math.sin(b * t) * ry]
+    end
+    points.each_cons(2) do |(x1, y1), (x2, y2)|
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z, thickness: thickness)
     end
   end
 

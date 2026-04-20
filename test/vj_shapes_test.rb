@@ -121,6 +121,62 @@ class ShapesTest < Minitest::Test
     assert_in_delta 640.0 + UNIT, call.args[3], 0.001  # x2
     assert_in_delta 360.0,        call.args[4], 0.001  # y2
   end
+
+  def test_line_with_thickness_zero_uses_draw_line
+    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], thickness: 0)
+    assert_equal [:line], Gosu::DRAW_LOG.map(&:method)
+  end
+
+  def test_line_with_positive_thickness_draws_quad_as_two_triangles
+    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], thickness: 0.5)
+    assert_equal [:triangle, :triangle], Gosu::DRAW_LOG.map(&:method)
+  end
+
+  # 水平線 (y 一定) に thickness=1 を与えると、y 方向に ±UNIT/2 の幅が出るはず
+  def test_line_thickness_spreads_perpendicular_to_line_direction
+    Line(x1: -2, y1: 0, x2: 2, y2: 0, color: [0, 1, 1], thickness: 1)
+    tris = Gosu::DRAW_LOG
+    ys = tris.flat_map { |c| [c.args[1], c.args[4], c.args[7]] }
+    assert_in_delta 360.0 - UNIT / 2.0, ys.min, 0.001
+    assert_in_delta 360.0 + UNIT / 2.0, ys.max, 0.001
+  end
+
+  # --- Lissajous ---
+  # Line の x1/x2 は vj_px 通過後のピクセル座標。画面中心 640.0 からの最大偏差が rx*UNIT に収まることを見る
+  def lissajous_x_pixels
+    Gosu::DRAW_LOG.flat_map { |c| [c.args[0], c.args[3]] }
+  end
+
+  def lissajous_y_pixels
+    Gosu::DRAW_LOG.flat_map { |c| [c.args[1], c.args[4]] }
+  end
+
+  def test_lissajous_x_amplitude_is_bounded_by_rx
+    Lissajous(a: 3, b: 2, rx: 4, ry: 1, color: [0, 1, 1])
+    xs = lissajous_x_pixels
+    max_dx = xs.map { |x| (x - 640.0).abs }.max
+    assert_in_delta 4 * UNIT, max_dx, 0.5
+  end
+
+  def test_lissajous_y_amplitude_is_bounded_by_ry
+    Lissajous(a: 3, b: 2, rx: 1, ry: 4, color: [0, 1, 1])
+    ys = lissajous_y_pixels
+    max_dy = ys.map { |y| (y - 360.0).abs }.max
+    assert_in_delta 4 * UNIT, max_dy, 0.5
+  end
+
+  def test_lissajous_with_equal_rx_ry_has_equal_x_and_y_amplitude
+    Lissajous(a: 3, b: 2, rx: 3, ry: 3, color: [0, 1, 1])
+    max_dx = lissajous_x_pixels.map { |x| (x - 640.0).abs }.max
+    max_dy = lissajous_y_pixels.map { |y| (y - 360.0).abs }.max
+    assert_in_delta max_dx, max_dy, 0.5
+  end
+
+  def test_lissajous_thickness_passes_through_to_line
+    Lissajous(a: 3, b: 2, rx: 4, ry: 4, steps: 16, color: [0, 1, 1], thickness: 0.3)
+    methods = Gosu::DRAW_LOG.map(&:method).uniq
+    assert_equal [:triangle], methods
+  end
 end
 
 class HsvToColorTest < Minitest::Test
