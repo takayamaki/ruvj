@@ -392,6 +392,87 @@ class HsvToColorTest < Minitest::Test
   end
 end
 
+class RingTest < Minitest::Test
+  include VjShapes
+
+  def setup
+    Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
+  end
+
+  # --- Ring: 基本動作 ---
+  def test_ring_draws_line_segments
+    skip
+  end
+
+  def test_ring_segment_count_matches_steps
+    skip
+  end
+
+  def test_ring_at_origin_draws_around_screen_center
+    skip
+  end
+
+  def test_ring_at_offset_position_draws_around_correct_pixel
+    skip
+  end
+
+  # --- Ring: steps パラメータ ---
+  def test_ring_custom_steps_draws_correct_count
+    skip
+  end
+
+  # --- Ring: 半径 ---
+  def test_ring_radius_scales_with_unit
+    skip
+  end
+end
+
+class TunnelTest < Minitest::Test
+  include VjShapes
+
+  def setup
+    Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
+  end
+
+  # --- Tunnel: 基本動作 ---
+  def test_tunnel_draws_multiple_rings
+    skip
+  end
+
+  def test_tunnel_ring_count_matches_n
+    skip
+  end
+
+  # --- Tunnel: alpha（奥→手前のグラデーション）---
+  def test_tunnel_innermost_ring_is_transparent
+    skip
+  end
+
+  def test_tunnel_outermost_ring_is_opaque
+    skip
+  end
+
+  # --- Tunnel: offset ---
+  def test_tunnel_offset_shifts_ring_phases
+    skip
+  end
+
+  # --- Tunnel: r_max ---
+  def test_tunnel_r_max_controls_outermost_radius
+    skip
+  end
+end
+
 class PolarTest < Minitest::Test
   include VjShapes
 
