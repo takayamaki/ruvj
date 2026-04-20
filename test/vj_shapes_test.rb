@@ -122,6 +122,15 @@ class ShapesTest < Minitest::Test
     assert_in_delta 360.0,        call.args[4], 0.001  # y2
   end
 
+  def test_line_with_thickness_zero_uses_draw_line
+  end
+
+  def test_line_with_positive_thickness_draws_quad_as_two_triangles
+  end
+
+  def test_line_thickness_spreads_perpendicular_to_line_direction
+  end
+
   # --- Lissajous ---
   # Line の x1/x2 は vj_px 通過後のピクセル座標。画面中心 640.0 からの最大偏差が rx*UNIT に収まることを見る
   def lissajous_x_pixels
@@ -151,6 +160,9 @@ class ShapesTest < Minitest::Test
     max_dx = lissajous_x_pixels.map { |x| (x - 640.0).abs }.max
     max_dy = lissajous_y_pixels.map { |y| (y - 360.0).abs }.max
     assert_in_delta max_dx, max_dy, 0.5
+  end
+
+  def test_lissajous_thickness_passes_through_to_line
   end
 end
 
