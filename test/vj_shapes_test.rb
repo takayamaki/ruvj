@@ -121,6 +121,16 @@ class ShapesTest < Minitest::Test
     assert_in_delta 640.0 + UNIT, call.args[3], 0.001  # x2
     assert_in_delta 360.0,        call.args[4], 0.001  # y2
   end
+
+  # --- Lissajous ---
+  def test_lissajous_x_amplitude_is_bounded_by_rx
+  end
+
+  def test_lissajous_y_amplitude_is_bounded_by_ry
+  end
+
+  def test_lissajous_with_equal_rx_ry_has_equal_x_and_y_amplitude
+  end
 end
 
 class HsvToColorTest < Minitest::Test
