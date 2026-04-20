@@ -58,6 +58,17 @@ module VjShapes
     VjRenderer.current.draw_rect(0, 0, W, H, hsv_to_color(color), 0)
   end
 
+  # visual.rb 使用例:
+  #   Kaleidoscope(segments: 6) do
+  #     Circle(x: 3, y: 0, r: @vj.mid * 2, color: [120, 1, 1])
+  #   end
+  def Kaleidoscope(segments: 6, &block)
+    segments.times do |i|
+      angle = i * 360.0 / segments
+      VjRenderer.current.rotate(angle) { instance_eval(&block) }
+    end
+  end
+
   def polar(r, theta)
     { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end
