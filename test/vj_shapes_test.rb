@@ -406,29 +406,46 @@ class RingTest < Minitest::Test
 
   # --- Ring: 基本動作 ---
   def test_ring_draws_line_segments
-    skip
+    Ring(r: 1, color: {h: 0, s: 1, v: 1})
+    assert Gosu::DRAW_LOG.all? { |c| c.method == :line }
   end
 
   def test_ring_segment_count_matches_steps
-    skip
+    Ring(r: 1, color: {h: 0, s: 1, v: 1}, steps: 32)
+    assert_equal 32, Gosu::DRAW_LOG.size
   end
 
   def test_ring_at_origin_draws_around_screen_center
-    skip
+    # steps=4: 角度 0, π/2, π, 3π/2 の4セグメント
+    # セグメント0: (r*cos(0), r*sin(0)) → (r*cos(π/2), r*sin(π/2))
+    # VJ座標(r, 0) → ピクセル(640 + r*UNIT, 360 - 0)
+    Ring(r: 1, color: {h: 0, s: 1, v: 1}, steps: 4)
+    call = Gosu::DRAW_LOG.first
+    assert_in_delta 640.0 + UNIT, call.args[0], 0.001  # x1
+    assert_in_delta 360.0,        call.args[1], 0.001  # y1
   end
 
   def test_ring_at_offset_position_draws_around_correct_pixel
-    skip
+    # cx = 640 + 1*40 = 680, cy = 360 - 1*40 = 320
+    # x1 = 680 + 1*40*cos(0) = 720
+    Ring(x: 1, y: 1, r: 1, color: {h: 0, s: 1, v: 1}, steps: 4)
+    call = Gosu::DRAW_LOG.first
+    assert_in_delta 720.0, call.args[0], 0.001
+    assert_in_delta 320.0, call.args[1], 0.001
   end
 
   # --- Ring: steps パラメータ ---
   def test_ring_custom_steps_draws_correct_count
-    skip
+    Ring(r: 2, color: {h: 0, s: 1, v: 1}, steps: 8)
+    assert_equal 8, Gosu::DRAW_LOG.size
   end
 
   # --- Ring: 半径 ---
   def test_ring_radius_scales_with_unit
-    skip
+    # r=2, steps=4: x1 = 640 + 2*40*cos(0) = 640 + 80 = 720
+    Ring(r: 2, color: {h: 0, s: 1, v: 1}, steps: 4)
+    call = Gosu::DRAW_LOG.first
+    assert_in_delta 640.0 + 2 * UNIT, call.args[0], 0.001
   end
 end
 
@@ -446,30 +463,48 @@ class TunnelTest < Minitest::Test
 
   # --- Tunnel: 基本動作 ---
   def test_tunnel_draws_multiple_rings
-    skip
+    Tunnel(n: 3, r_max: 5, color: {h: 0, s: 1, v: 1})
+    refute_empty Gosu::DRAW_LOG
   end
 
   def test_tunnel_ring_count_matches_n
-    skip
+    # Tunnel(n:3) は Ring を3回呼ぶ。Ring のデフォルト steps=32 なので 3*32=96 本の線
+    Tunnel(n: 3, r_max: 5, color: {h: 0, s: 1, v: 1})
+    assert_equal 3 * 32, Gosu::DRAW_LOG.size
   end
 
   # --- Tunnel: alpha（奥→手前のグラデーション）---
   def test_tunnel_innermost_ring_is_transparent
-    skip
+    # i=0, phase=(0/n + 0) % 1.0 = 0.0 → alpha=0
+    # draw_line の args: [x1, y1, color1, x2, y2, color2, z]
+    Tunnel(n: 4, r_max: 5, color: {h: 0, s: 1, v: 1}, offset: 0)
+    first_color = Gosu::DRAW_LOG.first.args[2]  # Gosu::Color
+    assert_equal 0, first_color.alpha
   end
 
   def test_tunnel_outermost_ring_is_opaque
-    skip
+    # i=n-1=3, phase=3/4=0.75 → alpha=(0.75*255).to_i=191
+    Tunnel(n: 4, r_max: 5, color: {h: 0, s: 1, v: 1}, offset: 0)
+    last_color = Gosu::DRAW_LOG.last.args[2]
+    assert_equal((0.75 * 255).to_i, last_color.alpha)
   end
 
   # --- Tunnel: offset ---
   def test_tunnel_offset_shifts_ring_phases
-    skip
+    # i=0, phase=(0/4 + 0.25) % 1.0 = 0.25 → alpha=(0.25*255).to_i=63
+    Tunnel(n: 4, r_max: 5, color: {h: 0, s: 1, v: 1}, offset: 0.25)
+    first_color = Gosu::DRAW_LOG.first.args[2]
+    assert_equal((0.25 * 255).to_i, first_color.alpha)
   end
 
   # --- Tunnel: r_max ---
   def test_tunnel_r_max_controls_outermost_radius
-    skip
+    # n=2, r_max=4, offset=0
+    # i=1, phase=0.5, r=2.0 → Ring(r:2, steps:32) の最初の線
+    # x1 = 640 + 2*40*cos(0) = 720
+    Tunnel(n: 2, r_max: 4, color: {h: 0, s: 1, v: 1}, offset: 0)
+    last_ring_first_call = Gosu::DRAW_LOG[32]  # i=1 の最初の線
+    assert_in_delta 640.0 + 2.0 * UNIT, last_ring_first_call.args[0], 0.001
   end
 end
 
