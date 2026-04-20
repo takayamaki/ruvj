@@ -51,7 +51,18 @@ module VjShapes
     px1, py1 = vj_px(x1, y1)
     px2, py2 = vj_px(x2, y2)
     c = hsv_to_color(color)
-    VjRenderer.current.draw_line(px1, py1, c, px2, py2, c, z)
+    if thickness > 0
+      dx, dy = px2 - px1, py2 - py1
+      len = Math.hypot(dx, dy)
+      return if len == 0
+      half = thickness * UNIT / 2.0
+      ox, oy = -dy / len * half, dx / len * half
+      r = VjRenderer.current
+      r.draw_triangle(px1 - ox, py1 - oy, c, px1 + ox, py1 + oy, c, px2 + ox, py2 + oy, c, z)
+      r.draw_triangle(px1 - ox, py1 - oy, c, px2 + ox, py2 + oy, c, px2 - ox, py2 - oy, c, z)
+    else
+      VjRenderer.current.draw_line(px1, py1, c, px2, py2, c, z)
+    end
   end
 
   def Bg(color:)
