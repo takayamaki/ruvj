@@ -18,8 +18,9 @@ class GosuRenderer
     Gosu.draw_line(x1, y1, gosu_color(c1), x2, y2, gosu_color(c2), z)
   end
 
-  def translate(x, y, &block) = Gosu.translate(x, y, &block)
-  def scale(s, &block)        = Gosu.scale(s, s, &block)
+  def translate(x, y, &block)              = Gosu.translate(x, y, &block)
+  def scale(s, &block)                     = Gosu.scale(s, s, &block)
+  def rotate(angle, cx = 640.0, cy = 360.0, &block) = Gosu.rotate(angle, cx, cy, &block)
 
   private
 
