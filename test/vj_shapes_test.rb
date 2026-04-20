@@ -140,9 +140,17 @@ class ShapesTest < Minitest::Test
   end
 
   def test_lissajous_y_amplitude_is_bounded_by_ry
+    Lissajous(a: 3, b: 2, rx: 1, ry: 4, color: [0, 1, 1])
+    ys = lissajous_y_pixels
+    max_dy = ys.map { |y| (y - 360.0).abs }.max
+    assert_in_delta 4 * UNIT, max_dy, 0.5
   end
 
   def test_lissajous_with_equal_rx_ry_has_equal_x_and_y_amplitude
+    Lissajous(a: 3, b: 2, rx: 3, ry: 3, color: [0, 1, 1])
+    max_dx = lissajous_x_pixels.map { |x| (x - 640.0).abs }.max
+    max_dy = lissajous_y_pixels.map { |y| (y - 360.0).abs }.max
+    assert_in_delta max_dx, max_dy, 0.5
   end
 end
 
