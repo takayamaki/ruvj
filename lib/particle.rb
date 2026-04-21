@@ -38,7 +38,7 @@ class ParticleSystem
   def draw(z: 0)
     @particles.each do |p|
       alpha = (255 * p.life / p.max_life).to_i
-      Circle(x: p.x, y: p.y, r: p.size, color: [p.hue, 1, 1, alpha], z: z)
+      Circle(x: p.x, y: p.y, r: p.size, color: {h: p.hue, s: 1, v: 1, a: alpha}, z: z)
     end
   end
 end
