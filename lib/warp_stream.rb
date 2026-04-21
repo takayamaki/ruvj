@@ -19,7 +19,7 @@ class WarpStream
   # visual.rb 使用例:
   #   @@warp ||= WarpStream.new(max: 300)
   #   def draw_scene
-  #     @@warp.step(r_min: 2, density: 5, bold: 10, color: [200, 1, 1])
+  #     @@warp.step(r_min: 2, density: 5, bold: 10, color: {h: 200, s: 1, v: 1})
   #   end
   #
   # r_min:   デッドゾーン半径（VJ座標ユニット）。この内側は無描画
@@ -27,7 +27,7 @@ class WarpStream
   # speed:   初速（VJ座標ユニット/フレーム）
   # accel:   フレームごとの速度倍率（1.0超で加速、ワープ感が増す）
   # bold:    ストリーク線の太さ（1/100 VJユニット）。0で細線、正の値でquad描画
-  # color:   [h, s, v] または [h, s, v, a]
+  # color:   {h:, s:, v:} または {h:, s:, v:, a:} のハッシュ
   def step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, bold: 0, color:, z: 0)
     emit(r_min: r_min, density: density, speed: speed)
     update(accel: accel)
@@ -54,7 +54,6 @@ class WarpStream
   end
 
   def draw(r_min:, color:, z:, bold:)
-    h, s, v = color[0], color[1], color[2]
     @particles.each do |p|
       next if p.r <= r_min
       x1 = Math.cos(p.angle) * [p.r_prev, r_min].max
@@ -62,7 +61,7 @@ class WarpStream
       x2 = Math.cos(p.angle) * p.r
       y2 = Math.sin(p.angle) * p.r
       alpha = ((p.r / MAX_R) * 255).clamp(0, 255).to_i
-      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: [h, s, v, alpha], z: z, bold: bold)
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color.merge(a: alpha), z: z, bold: bold)
     end
   end
 end

@@ -73,7 +73,7 @@ module VjShapes
 
   # visual.rb 使用例:
   #   Kaleidoscope(segments: 6) do
-  #     Circle(x: 3, y: 0, r: @vj.mid * 2, color: [120, 1, 1])
+  #     Circle(x: 3, y: 0, r: @vj.mid * 2, color: {h: 120, s: 1, v: 1})
   #   end
   def Kaleidoscope(segments: 6, &block)
     segments.times do |i|
@@ -83,7 +83,7 @@ module VjShapes
   end
 
   # visual.rb 使用例:
-  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, bold: 10, color: [200, 1, 1])
+  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, bold: 10, color: {h: 200, s: 1, v: 1})
   def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, bold: 0, color:, z: 0)
     points = (steps + 1).times.map do |i|
       t = i * Math::PI * 2 / steps
@@ -98,9 +98,12 @@ module VjShapes
     { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end
 
+  # color は {h:, s:, v:} または {h:, s:, v:, a:} のハッシュで渡す
   def hsv_to_color(hsv)
-    h, s, v, a = hsv[0], hsv[1], hsv[2], (hsv[3] || 255)
-    h = h % 360
+    h = hsv[:h] % 360
+    s = hsv[:s]
+    v = hsv[:v]
+    a = hsv[:a] || 255
     hi = (h / 60).to_i
     f  = h / 60.0 - hi
     p  = v * (1 - s)
