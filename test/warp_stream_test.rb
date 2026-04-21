@@ -33,7 +33,7 @@ class WarpStreamTest < Minitest::Test
     VjRenderer.use(nil)
   end
 
-  def test_step_without_thickness_draws_hairline_with_draw_line
+  def test_step_without_bold_draws_hairline_with_draw_line
     warp = WarpStream.new(max: 10)
     3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: [0, 1, 1]) }
     methods = Gosu::DRAW_LOG.map(&:method).uniq
@@ -41,9 +41,9 @@ class WarpStreamTest < Minitest::Test
     refute_includes methods, :triangle
   end
 
-  def test_step_with_positive_thickness_draws_thick_lines_as_triangles
+  def test_step_with_positive_bold_draws_thick_lines_as_triangles
     warp = WarpStream.new(max: 10)
-    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: [0, 1, 1], thickness: 0.2) }
+    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: [0, 1, 1], bold: 20) }
     methods = Gosu::DRAW_LOG.map(&:method).uniq
     assert_includes methods, :triangle
     refute_includes methods, :line
