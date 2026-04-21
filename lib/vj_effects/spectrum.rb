@@ -7,7 +7,7 @@ module VjEffects
         h = v * height
         next if h <= 0
         bx = x - width / 2.0 + bar_w * (i + 0.5)
-        Rect(x: bx, y: y + h / 2.0, w: bar_w - gap, h: h, color: [hue, sat, val, alpha], z: z)
+        Rect(x: bx, y: y + h / 2.0, w: bar_w - gap, h: h, color: {h: hue, s: sat, v: val, a: alpha}, z: z)
       end
     end
   end
