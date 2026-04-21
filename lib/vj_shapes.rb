@@ -47,15 +47,17 @@ module VjShapes
     end
   end
 
-  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, thickness: 0)
+  # bold: 線の太さ。単位は 1/100 VJユニット（bold: 100 で 1VJユニット幅）。
+  #       0 で Gosu.draw_line を使う細線、正値で三角形2枚のquad描画。
+  def Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, bold: 0)
     px1, py1 = vj_px(x1, y1)
     px2, py2 = vj_px(x2, y2)
     c = hsv_to_color(color)
-    if thickness > 0
+    if bold > 0
       dx, dy = px2 - px1, py2 - py1
       len = Math.hypot(dx, dy)
       return if len == 0
-      half = thickness * UNIT / 2.0
+      half = bold * UNIT / 200.0
       ox, oy = -dy / len * half, dx / len * half
       r = VjRenderer.current
       r.draw_triangle(px1 - ox, py1 - oy, c, px1 + ox, py1 + oy, c, px2 + ox, py2 + oy, c, z)
@@ -81,14 +83,14 @@ module VjShapes
   end
 
   # visual.rb 使用例:
-  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, thickness: 0.1, color: [200, 1, 1])
-  def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, thickness: 0, color:, z: 0)
+  #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, bold: 10, color: [200, 1, 1])
+  def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, bold: 0, color:, z: 0)
     points = (steps + 1).times.map do |i|
       t = i * Math::PI * 2 / steps
       [Math.sin(a * t + delta) * rx, Math.sin(b * t) * ry]
     end
     points.each_cons(2) do |(x1, y1), (x2, y2)|
-      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z, thickness: thickness)
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: color, z: z, bold: bold)
     end
   end
 

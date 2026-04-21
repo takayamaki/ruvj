@@ -122,19 +122,19 @@ class ShapesTest < Minitest::Test
     assert_in_delta 360.0,        call.args[4], 0.001  # y2
   end
 
-  def test_line_with_thickness_zero_uses_draw_line
-    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], thickness: 0)
+  def test_line_with_bold_zero_uses_draw_line
+    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], bold: 0)
     assert_equal [:line], Gosu::DRAW_LOG.map(&:method)
   end
 
-  def test_line_with_positive_thickness_draws_quad_as_two_triangles
-    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], thickness: 0.5)
+  def test_line_with_positive_bold_draws_quad_as_two_triangles
+    Line(x1: -1, y1: 0, x2: 1, y2: 0, color: [0, 1, 1], bold: 50)
     assert_equal [:triangle, :triangle], Gosu::DRAW_LOG.map(&:method)
   end
 
-  # 水平線 (y 一定) に thickness=1 を与えると、y 方向に ±UNIT/2 の幅が出るはず
-  def test_line_thickness_spreads_perpendicular_to_line_direction
-    Line(x1: -2, y1: 0, x2: 2, y2: 0, color: [0, 1, 1], thickness: 1)
+  # 水平線 (y 一定) に bold=100 (= 1 VJユニット幅) を与えると、y 方向に ±UNIT/2 の幅が出るはず
+  def test_line_bold_spreads_perpendicular_to_line_direction
+    Line(x1: -2, y1: 0, x2: 2, y2: 0, color: [0, 1, 1], bold: 100)
     tris = Gosu::DRAW_LOG
     ys = tris.flat_map { |c| [c.args[1], c.args[4], c.args[7]] }
     assert_in_delta 360.0 - UNIT / 2.0, ys.min, 0.001
@@ -172,8 +172,8 @@ class ShapesTest < Minitest::Test
     assert_in_delta max_dx, max_dy, 0.5
   end
 
-  def test_lissajous_thickness_passes_through_to_line
-    Lissajous(a: 3, b: 2, rx: 4, ry: 4, steps: 16, color: [0, 1, 1], thickness: 0.3)
+  def test_lissajous_bold_passes_through_to_line
+    Lissajous(a: 3, b: 2, rx: 4, ry: 4, steps: 16, color: [0, 1, 1], bold: 30)
     methods = Gosu::DRAW_LOG.map(&:method).uniq
     assert_equal [:triangle], methods
   end
