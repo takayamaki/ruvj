@@ -211,6 +211,15 @@ class HsvToColorTest < Minitest::Test
     assert_equal 128, a
   end
 
+  def test_h_defaults_to_0_when_absent
+  end
+
+  def test_s_defaults_to_1_when_absent
+  end
+
+  def test_v_defaults_to_1_when_absent
+  end
+
   def test_hue_wraps_around_360
     r1, g1, b1, _ = hsv_to_color({h: 0,   s: 1, v: 1})
     r2, g2, b2, _ = hsv_to_color({h: 360, s: 1, v: 1})
