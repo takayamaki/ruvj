@@ -309,7 +309,13 @@ class TextTest < Minitest::Test
     assert_equal %w[foo bar baz], texts
   end
 
+  # align_y: :top で 1行目 py、2行目 py + height、3行目 py + 2*height となるはず
   def test_multiline_each_line_is_offset_by_font_height
+    Text("a\nb\nc", x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_y: :top)
+    ys = Gosu::DRAW_LOG.select { |c| c.method == :text }.map { |c| c.args[2] }
+    assert_in_delta 360.0,            ys[0], 0.001
+    assert_in_delta 360.0 + UNIT,     ys[1], 0.001
+    assert_in_delta 360.0 + 2 * UNIT, ys[2], 0.001
   end
 
   def test_multiline_align_y_middle_centers_whole_block_vertically
