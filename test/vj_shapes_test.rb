@@ -211,7 +211,12 @@ class HsvToColorTest < Minitest::Test
     assert_equal 128, a
   end
 
+  # h 欠落時は h=0 (赤) で補完されるはず
   def test_h_defaults_to_0_when_absent
+    r, g, b, _a = hsv_to_color({s: 1, v: 1})
+    assert_operator r, :>, 200
+    assert_operator g, :<, 10
+    assert_operator b, :<, 10
   end
 
   def test_s_defaults_to_1_when_absent

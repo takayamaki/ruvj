@@ -98,11 +98,12 @@ module VjShapes
     { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end
 
-  # color は {h:, s:, v:} または {h:, s:, v:, a:} のハッシュで渡す
+  # color は {h:, s:, v:} または {h:, s:, v:, a:} のハッシュで渡す。
+  # 各キーが欠落した場合は h=0, s=1, v=1, a=255 で補完する（純粋な赤になる）。
   def hsv_to_color(hsv)
-    h = hsv[:h] % 360
-    s = hsv[:s]
-    v = hsv[:v]
+    h = (hsv[:h] || 0) % 360
+    s = hsv[:s] || 1
+    v = hsv[:v] || 1
     a = hsv[:a] || 255
     hi = (h / 60).to_i
     f  = h / 60.0 - hi
