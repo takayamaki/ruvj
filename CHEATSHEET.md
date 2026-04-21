@@ -227,6 +227,37 @@ end
 
 ---
 
+## ParticleSystem — 重力パーティクル
+
+```ruby
+require_relative 'lib/particle'
+
+@@ps ||= ParticleSystem.new(max: 500)
+
+def draw_scene
+  @@ps.emit(x: 0, y: 0, speed: 0.2, life: 120, hue: @vj.t * 30 % 360, n: @vj.beat? ? 20 : 2)
+  @@ps.update
+  @@ps.draw(z: 1)
+end
+```
+
+### emit 引数
+
+| 引数 | デフォルト | 内容 |
+|------|-----------|------|
+| `x`, `y` | `0, 0` | 放出位置（VJ単位） |
+| `speed`  | `0.15` | 最大初速（実際は 0〜speed のランダム） |
+| `life`   | `90`   | 寿命（フレーム数） |
+| `hue`    | `0`    | 色相（0〜360） |
+| `size`   | `0.2`  | 半径（VJ単位） |
+| `n`      | `1`    | 1回の emit 数 |
+
+- 重力: `vy -= 0.003` / フレーム（下方向）
+- alpha は `life / max_life` で寿命に比例して減衰
+- `@@` クラス変数でホットリロード後も状態を保持
+
+---
+
 ## polar — 極座標ヘルパー
 
 ```ruby
