@@ -35,7 +35,7 @@ class WarpStreamTest < Minitest::Test
 
   def test_step_without_bold_draws_hairline_with_draw_line
     warp = WarpStream.new(max: 10)
-    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: [0, 1, 1]) }
+    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: {h: 0, s: 1, v: 1}) }
     methods = Gosu::DRAW_LOG.map(&:method).uniq
     assert_includes methods, :line
     refute_includes methods, :triangle
@@ -43,7 +43,7 @@ class WarpStreamTest < Minitest::Test
 
   def test_step_with_positive_bold_draws_thick_lines_as_triangles
     warp = WarpStream.new(max: 10)
-    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: [0, 1, 1], bold: 20) }
+    3.times { warp.step(r_min: 2, density: 3, speed: 1.0, accel: 1.0, color: {h: 0, s: 1, v: 1}, bold: 20) }
     methods = Gosu::DRAW_LOG.map(&:method).uniq
     assert_includes methods, :triangle
     refute_includes methods, :line

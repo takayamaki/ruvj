@@ -47,7 +47,7 @@ class RuVJWasm
   end
 
   def draw_scene
-    Bg(color: [0, 0, 0])
+    Bg(color: {h: 0, s: 0, v: 0})
   end
 
   private
