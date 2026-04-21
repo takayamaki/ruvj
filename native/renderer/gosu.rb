@@ -18,6 +18,23 @@ class GosuRenderer
     Gosu.draw_line(x1, y1, gosu_color(c1), x2, y2, gosu_color(c2), z)
   end
 
+  def draw_text(text, x, y, height, color, align_x, align_y, z)
+    key  = [height.to_i, 1].max
+    font = (@fonts ||= {})[key] ||= Gosu::Font.new(key)
+    w = font.text_width(text)
+    ox = case align_x
+         when :center then -w / 2.0
+         when :right  then -w.to_f
+         else              0.0
+         end
+    oy = case align_y
+         when :top    then 0.0
+         when :bottom then -height.to_f
+         else              -height / 2.0
+         end
+    font.draw_text(text, x + ox, y + oy, z, 1, 1, gosu_color(color))
+  end
+
   def translate(x, y, &block)              = Gosu.translate(x, y, &block)
   def scale(s, &block)                     = Gosu.scale(s, s, &block)
   def rotate(angle, cx = 640.0, cy = 360.0, &block) = Gosu.rotate(angle, cx, cy, &block)
