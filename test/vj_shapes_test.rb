@@ -301,6 +301,16 @@ class TextTest < Minitest::Test
     Text('', x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
     refute_nil Gosu::DRAW_LOG.find { |c| c.method == :text }
   end
+
+  # --- 複数行 ---
+  def test_multiline_splits_at_newline_and_draws_per_line
+  end
+
+  def test_multiline_each_line_is_offset_by_font_height
+  end
+
+  def test_multiline_align_y_middle_centers_whole_block_vertically
+  end
 end
 
 class HsvToColorTest < Minitest::Test
