@@ -97,7 +97,11 @@ module VjShapes
   def Text(str, x: 0, y: 0, size: 1, color:, align_x: :left, align_y: :middle, z: 0)
     px, py = vj_px(x, y)
     height = size * UNIT
-    VjRenderer.current.draw_text(str, px, py, height, hsv_to_color(color), align_x, align_y, z)
+    c = hsv_to_color(color)
+    lines = str.empty? ? [''] : str.split("\n", -1)
+    lines.each_with_index do |line, i|
+      VjRenderer.current.draw_text(line, px, py + i * height, height, c, align_x, align_y, z)
+    end
   end
 
   def polar(r, theta)

@@ -304,6 +304,9 @@ class TextTest < Minitest::Test
 
   # --- 複数行 ---
   def test_multiline_splits_at_newline_and_draws_per_line
+    Text("foo\nbar\nbaz", x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1})
+    texts = Gosu::DRAW_LOG.select { |c| c.method == :text }.map { |c| c.args[0] }
+    assert_equal %w[foo bar baz], texts
   end
 
   def test_multiline_each_line_is_offset_by_font_height
