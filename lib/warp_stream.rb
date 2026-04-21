@@ -19,18 +19,19 @@ class WarpStream
   # visual.rb 使用例:
   #   @@warp ||= WarpStream.new(max: 300)
   #   def draw_scene
-  #     @@warp.step(r_min: 2, density: 5, color: [200, 1, 1])
+  #     @@warp.step(r_min: 2, density: 5, thickness: 0.1, color: [200, 1, 1])
   #   end
   #
-  # r_min:   デッドゾーン半径（VJ座標ユニット）。この内側は無描画
-  # density: 1フレームあたりの放出数
-  # speed:   初速（VJ座標ユニット/フレーム）
-  # accel:   フレームごとの速度倍率（1.0超で加速、ワープ感が増す）
-  # color:   [h, s, v] または [h, s, v, a]
-  def step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, color:, z: 0)
+  # r_min:     デッドゾーン半径（VJ座標ユニット）。この内側は無描画
+  # density:   1フレームあたりの放出数
+  # speed:     初速（VJ座標ユニット/フレーム）
+  # accel:     フレームごとの速度倍率（1.0超で加速、ワープ感が増す）
+  # thickness: ストリーク線の太さ（VJ座標ユニット）。0で細線、正の値でquad描画
+  # color:     [h, s, v] または [h, s, v, a]
+  def step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, thickness: 0, color:, z: 0)
     emit(r_min: r_min, density: density, speed: speed)
     update(accel: accel)
-    draw(r_min: r_min, color: color, z: z)
+    draw(r_min: r_min, color: color, z: z, thickness: thickness)
     @particles.reject! { |p| p.r > MAX_R }
   end
 
@@ -52,7 +53,7 @@ class WarpStream
     end
   end
 
-  def draw(r_min:, color:, z:)
+  def draw(r_min:, color:, z:, thickness:)
     h, s, v = color[0], color[1], color[2]
     @particles.each do |p|
       next if p.r <= r_min
@@ -61,7 +62,7 @@ class WarpStream
       x2 = Math.cos(p.angle) * p.r
       y2 = Math.sin(p.angle) * p.r
       alpha = ((p.r / MAX_R) * 255).clamp(0, 255).to_i
-      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: [h, s, v, alpha], z: z)
+      Line(x1: x1, y1: y1, x2: x2, y2: y2, color: [h, s, v, alpha], z: z, thickness: thickness)
     end
   end
 end
