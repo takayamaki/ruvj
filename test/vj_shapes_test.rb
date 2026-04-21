@@ -318,7 +318,14 @@ class TextTest < Minitest::Test
     assert_in_delta 360.0 + 2 * UNIT, ys[2], 0.001
   end
 
+  # 3行・middle の場合、真ん中の行(2行目)の中心が py の位置 (=360) に来るはず
   def test_multiline_align_y_middle_centers_whole_block_vertically
+    Text("a\nb\nc", x: 0, y: 0, size: 1, color: {h: 0, s: 1, v: 1}, align_y: :middle)
+    ys = Gosu::DRAW_LOG.select { |c| c.method == :text }.map { |c| c.args[2] }
+    # ブロック全高 = 3 * UNIT、上端 = py - 1.5*UNIT、各行 ベースライン y は上端 + i*UNIT
+    assert_in_delta 360.0 - 1.5 * UNIT, ys[0], 0.001
+    assert_in_delta 360.0 - 0.5 * UNIT, ys[1], 0.001
+    assert_in_delta 360.0 + 0.5 * UNIT, ys[2], 0.001
   end
 end
 
