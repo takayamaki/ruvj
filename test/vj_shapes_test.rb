@@ -219,10 +219,18 @@ class HsvToColorTest < Minitest::Test
     assert_operator b, :<, 10
   end
 
+  # s 欠落時は s=1 (彩度最大) で補完されるはず。h=120 (緑) で検証
   def test_s_defaults_to_1_when_absent
+    r, g, b, _a = hsv_to_color({h: 120, v: 1})
+    assert_operator g, :>, 200
+    assert_operator r, :<, 10
+    assert_operator b, :<, 10
   end
 
+  # v 欠落時は v=1 (明度最大) で補完されるはず
   def test_v_defaults_to_1_when_absent
+    r, _g, _b, _a = hsv_to_color({h: 0, s: 1})
+    assert_operator r, :>, 200
   end
 
   def test_hue_wraps_around_360
