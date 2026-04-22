@@ -83,6 +83,20 @@ module VjShapes
   end
 
   # visual.rb 使用例:
+  #   Ring(x: 0, y: 0, r: 3, color: {h: 180, s: 1, v: 1})
+  def Ring(x: 0, y: 0, r: 1, color:, z: 0, steps: 32)
+    steps.times do |i|
+      a1 = i       * Math::PI * 2 / steps
+      a2 = (i + 1) * Math::PI * 2 / steps
+      Line(
+        x1: x + r * Math.cos(a1), y1: y + r * Math.sin(a1),
+        x2: x + r * Math.cos(a2), y2: y + r * Math.sin(a2),
+        color: color, z: z
+      )
+    end
+  end
+
+  # visual.rb 使用例:
   #   Lissajous(a: 3, b: 2, delta: @vj.t * 0.5, rx: @vj.mid * 6 + 2, ry: 3, bold: 10, color: {h: 200, s: 1, v: 1})
   def Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, bold: 0, color:, z: 0)
     points = (steps + 1).times.map do |i|
@@ -107,6 +121,15 @@ module VjShapes
                 end
     lines.each_with_index do |line, i|
       VjRenderer.current.draw_text(line, px, block_top + i * height, height, c, align_x, :top, z)
+    end
+  end
+
+  # visual.rb 使用例:
+  #   Tunnel(n: 12, offset: @vj.t * 0.3, r_max: 10, color: {h: 180, s: 1, v: 1})
+  def Tunnel(n: 10, offset: 0, r_max: 10, color:, z: 0)
+    n.times do |i|
+      phase = (i.to_f / n + offset) % 1.0
+      Ring(r: phase * r_max, color: color.merge(a: (phase * 255).to_i), z: z)
     end
   end
 
