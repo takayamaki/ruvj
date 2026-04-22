@@ -1,5 +1,39 @@
 # RuVJ チートシート
 
+## 究極のチートシート
+
+```ruby
+# shapes
+Bg(color:)
+Circle(x: 0, y: 0, r: 1, color:, z: 0, steps: 16)
+Rect(x: 0, y: 0, w: 1, h: 1, color:, z: 0)
+Triangle(x: 0, y: 0, size: 1, angle: 0, color:, z: 0)
+Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, bold: 0)
+Text("str", x: 0, y: 0, size: 1, color:, align_x: :left, align_y: :middle, z: 0)
+
+# effects
+Kaleidoscope(segments: 6) { ... }
+Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, bold: 0, color:, z: 0)
+Ring(x: 0, y: 0, r: 1, color:, z: 0, steps: 32)
+Tunnel(n: 10, offset: 0, r_max: 10, color:, z: 0)
+Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 200, sat: 0.8, val: 1.0, alpha: 255, gap: 0.1, z: 0)
+
+# stateful (@@var ||= new → per-frame)
+WarpStream.new(max: 300)
+WarpStream#step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, bold: 0, color:, z: 0)
+ParticleSystem.new(max: 300)
+ParticleSystem#emit(x: 0, y: 0, speed: 0.15, life: 90, hue: 0, size: 0.2, n: 1)
+ParticleSystem#update
+ParticleSystem#draw(z: 0)
+
+# helpers
+polar(r, theta) #=> {x:, y:}
+```
+
+各APIの詳細は以降のセクションを参照。
+
+---
+
 ## 座標系
 
 ```
