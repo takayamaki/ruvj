@@ -17,12 +17,9 @@ class Audio
     private
 
     def start_mic
-      cmd = "rec -q -t raw -e signed-integer -b 16 -c 1 -r #{SAMPLE_RATE} -"
-      @io          = IO.popen(cmd, 'rb')
       @result_port = Ractor::Port.new
       @proc_ractor = build_proc_ractor
       @active      = true
-      Thread.new { mic_loop }
       Thread.new { result_loop }
     rescue => e
       $stderr.puts "mic unavailable: #{e.message}"
@@ -30,6 +27,10 @@ class Audio
 
     def build_proc_ractor
       Ractor.new(@result_port, SAMPLE_RATE, CHUNK_SIZE, ENERGY_FRAMES) do |result_port, sr, cs, ef|
+        cmd   = "rec -q -t raw -e signed-integer -b 16 -c 1 -r #{sr} -"
+        io    = IO.popen(cmd, 'rb')
+        bytes = cs * 2
+
         energy_history = Array.new(ef, 0.0)
         bin    = sr.to_f / cs
         low_hi = (150  / bin).ceil
@@ -88,43 +89,43 @@ class Audio
           Math.sqrt(bins.sum { _1 * _1 } / bins.size)
         end
 
-        loop do
-          samples  = Ractor.receive
-          rms      = Math.sqrt(samples.sum { _1 * _1 } / samples.size)
-          spectrum = fft.(samples)
-          step     = cs / 256
-          waveform = Array.new(256) { |i| samples[i * step] }
-          low      = band_rms.(spectrum, 1,      low_hi)
-          mid      = band_rms.(spectrum, low_hi, mid_hi)
-          hi       = band_rms.(spectrum, mid_hi, spectrum.size - 1)
+        begin
+          loop do
+            raw = io.read(bytes)
+            break if raw.nil? || raw.size < bytes
+            samples  = raw.unpack('s<*').map { _1 / 32768.0 }
+            rms      = Math.sqrt(samples.sum { _1 * _1 } / samples.size)
+            spectrum = fft.(samples)
+            step     = cs / 256
+            waveform = Array.new(256) { |i| samples[i * step] }
+            low      = band_rms.(spectrum, 1,      low_hi)
+            mid      = band_rms.(spectrum, low_hi, mid_hi)
+            hi       = band_rms.(spectrum, mid_hi, spectrum.size - 1)
 
-          energy = rms ** 2
-          energy_history.shift
-          energy_history.push(energy)
-          avg  = energy_history.sum / energy_history.size
-          beat = energy > avg * 1.4 && energy > 0.005
+            energy = rms ** 2
+            energy_history.shift
+            energy_history.push(energy)
+            avg  = energy_history.sum / energy_history.size
+            beat = energy > avg * 1.4 && energy > 0.005
 
-          result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat, spectrum: spectrum, waveform: waveform }
+            result_port << { rms: rms, low: low, mid: mid, hi: hi, beat: beat, spectrum: spectrum, waveform: waveform }
+          end
+        ensure
+          result_port << { ended: true }
+          io.close rescue nil
         end
       end
-    end
-
-    def mic_loop
-      bytes = CHUNK_SIZE * 2
-      loop do
-        raw = @io.read(bytes)
-        break if raw.nil? || raw.size < bytes
-        @proc_ractor.send(raw.unpack('s<*').map { _1 / 32768.0 }, move: true)
-      end
-    rescue => e
-      $stderr.puts "mic error: #{e.message}"
-      @active = false
     end
 
     def result_loop
       loop do
         begin
-          @on_result.call(Timeout.timeout(CHUNK_BUDGET) { @result_port.receive })
+          r = Timeout.timeout(CHUNK_BUDGET) { @result_port.receive }
+          if r[:ended]
+            @active = false
+            break
+          end
+          @on_result.call(r)
         rescue Timeout::Error
           # バジェット超過: 前フレームの値をそのまま保持
         end
