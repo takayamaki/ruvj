@@ -508,6 +508,51 @@ class TunnelTest < Minitest::Test
   end
 end
 
+class RubyTest < Minitest::Test
+  include VjShapes
+
+  def setup
+    Gosu::DRAW_LOG.clear
+    VjRenderer.use(GosuRenderer.new)
+  end
+
+  def teardown
+    VjRenderer.use(nil)
+  end
+
+  # --- Ruby: 基本動作 ---
+  def test_ruby_draws_filled_triangles
+    skip
+  end
+
+  def test_ruby_draws_8_facet_triangles
+    skip
+  end
+
+  # --- Ruby: 位置 ---
+  def test_ruby_at_origin_spans_both_sides_of_screen_center
+    skip
+  end
+
+  def test_ruby_at_offset_position_shifts_all_vertices
+    skip
+  end
+
+  # --- Ruby: サイズ ---
+  def test_ruby_size_scales_dimensions
+    skip
+  end
+
+  # --- Ruby: 描画パラメータ ---
+  def test_ruby_z_is_passed_through
+    skip
+  end
+
+  def test_ruby_gap_shrinks_triangles_toward_centroid
+    skip
+  end
+end
+
 class PolarTest < Minitest::Test
   include VjShapes
 
