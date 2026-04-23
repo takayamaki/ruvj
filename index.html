@@ -60,20 +60,20 @@
   <div id="right">
     <h2>visual.rb — textarea を編集すると即時反映</h2>
     <textarea id="visual-src" spellcheck="false">def draw_scene
-  Bg(color: [0, 0, 0.05])
+  Bg(color: {h: 0, s: 0, v: 0.05})
 
   @vj.spectrum(32).each_with_index do |v, i|
     t = i / 32.0 * Math::PI * 2
     p1 = polar(3, t)
     p2 = polar(3 + v * 4, t)
-    Line(x1: p1[:x], y1: p1[:y], x2: p2[:x], y2: p2[:y], color: [i * 11, 1, 1])
+    Line(x1: p1[:x], y1: p1[:y], x2: p2[:x], y2: p2[:y], color: {h: i * 11, s: 1, v: 1})
   end
 
   w = @vj.waveform
   w.each_with_index do |v, i|
     next unless w[i + 1]
     x = i / 8.0 - 16
-    Line(x1: x, y1: v * 5, x2: x + 0.125, y2: w[i + 1] * 5, color: [120 + @vj.amp * 60, 1, 1])
+    Line(x1: x, y1: v * 5, x2: x + 0.125, y2: w[i + 1] * 5, color: {h: 120 + @vj.amp * 60, s: 1, v: 1})
   end
 end</textarea>
   </div>
