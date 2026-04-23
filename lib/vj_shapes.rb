@@ -133,6 +133,43 @@ module VjShapes
     end
   end
 
+  # visual.rb 使用例:
+  #   Ruby(x: 0, y: 0, size: 3, color: {h: 0, s: 1, v: 1})
+  # パビリオン3枚（左右狭い + 中央ワイド）+ クラウン5枚（upward 3 + downward 2 のジグザグ）
+  # = 計8枚の塗りつぶし三角形で Ruby ロゴを構成。
+  # gap: 各ファセット三角形を重心方向に縮めて白い隙間を作る（0.0 で隙間なし）。
+  def Ruby(x: 0, y: 0, size: 1, color:, z: 0, gap: 0.08)
+    girdle = [[-1.0, 0], [-0.5, 0], [0.5, 0], [1.0, 0]]
+    up_apex = [[-0.6, 0.4], [0, 0.4], [0.6, 0.4]]
+    tip = [0, -0.8]
+    triangles = [
+      [girdle[0], girdle[1], up_apex[0]],
+      [girdle[1], girdle[2], up_apex[1]],
+      [girdle[2], girdle[3], up_apex[2]],
+      [up_apex[0], up_apex[1], girdle[1]],
+      [up_apex[1], up_apex[2], girdle[2]],
+      [girdle[0], girdle[1], tip],
+      [girdle[1], girdle[2], tip],
+      [girdle[2], girdle[3], tip]
+    ]
+    c = hsv_to_color(color)
+    triangles.each do |tri|
+      cx = tri.sum { |v| v[0] } / 3.0
+      cy = tri.sum { |v| v[1] } / 3.0
+      verts = tri.map do |(vx, vy)|
+        lx = cx + (vx - cx) * (1 - gap)
+        ly = cy + (vy - cy) * (1 - gap)
+        vj_px(x + lx * size, y + ly * size)
+      end
+      VjRenderer.current.draw_triangle(
+        verts[0][0], verts[0][1], c,
+        verts[1][0], verts[1][1], c,
+        verts[2][0], verts[2][1], c,
+        z
+      )
+    end
+  end
+
   def polar(r, theta)
     { x: r * Math.cos(theta), y: r * Math.sin(theta) }
   end

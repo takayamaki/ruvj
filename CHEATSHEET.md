@@ -10,6 +10,7 @@ Rect(x: 0, y: 0, w: 1, h: 1, color:, z: 0)
 Triangle(x: 0, y: 0, size: 1, angle: 0, color:, z: 0)
 Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, bold: 0)
 Text("str", x: 0, y: 0, size: 1, color:, align_x: :left, align_y: :middle, z: 0)
+Ruby(x: 0, y: 0, size: 1, color:, z: 0, gap: 0.08)
 
 # effects
 Kaleidoscope(segments: 6) { ... }
@@ -180,6 +181,19 @@ Text("hello", x: 0, y: 0, size: 1, color:, align_x: :left, align_y: :middle, z: 
 | `align_y` | `:top` `:middle` `:bottom`  | 垂直揃え |
 
 改行 `\n` で複数行対応。
+
+### Ruby — Rubyロゴ風のジェム
+
+```ruby
+Ruby(x: 0, y: 0, size: 1, color:, z: 0, gap: 0.08)
+```
+
+塗りつぶされた8枚の三角形（パビリオン3枚 = 左右狭 + 中央ワイド、クラウン5枚 = upward 3枚 + downward 2枚のジグザグ）で Ruby ロゴの輪郭を構成。赤（`{h: 0, s: 1, v: 1}`）で描画するとまさにロゴそのもの。`gap` を大きくするとファセット間の白い隙間が広がってシャープな宝石感が出る（0 で隙間なしのベタ塗りポリゴン）。
+
+| 引数 | デフォルト | 内容 |
+|------|-----------|------|
+| `size` | `1` | 全体のスケール（幅は約 `2 * size` VJ単位、高さは約 `1.2 * size` VJ単位） |
+| `gap`  | `0.08` | 各ファセット三角形を重心方向に縮める割合（0.0〜1.0） |
 
 ---
 
