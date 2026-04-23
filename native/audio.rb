@@ -17,7 +17,7 @@ class Audio
 
   def source = @processor.active? ? :mic : :beat
 
-  def initialize(beat_fallback:)
+  def initialize(beat_fallback:, calibrate: true)
     @beat_fallback = beat_fallback
     @amp = @low = @mid = @hi = 0.0
     @spectrum = []
@@ -30,7 +30,8 @@ class Audio
       mid: BandTracker.new(0.0, 0.0, 0.001, 0.0),
       hi:  BandTracker.new(0.0, 0.0, 0.001, 0.0)
     }
-    @calib_count = 0
+    # calibrate: false で起動時フロアノイズ学習をスキップ。calib=0 のまま process に流れる
+    @calib_count = calibrate ? 0 : CALIBRATION_CHUNKS
     @mutex     = Mutex.new
     @processor = Processor.new(on_result: method(:apply_result))
   end
@@ -57,9 +58,9 @@ class Audio
       vars = {}
       raw.each { |band, val| vars[band] = @bands[band].track_floor(val) }
 
+      @spec_calib ||= Array.new(spec.size, 0.0)
       if @calib_count < CALIBRATION_CHUNKS
         vars.each { |band, var| @bands[band].calibrate(var) }
-        @spec_calib ||= Array.new(spec.size, 0.0)
         spec.size.times { |k| @spec_calib[k] = [@spec_calib[k], spec[k]].max }
         @calib_count += 1
         if @calib_count == CALIBRATION_CHUNKS
