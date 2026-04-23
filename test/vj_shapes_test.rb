@@ -520,36 +520,69 @@ class RubyTest < Minitest::Test
     VjRenderer.use(nil)
   end
 
-  # --- Ruby: 基本動作 ---
-  def test_ruby_draws_filled_triangles
-    skip
+  # draw_triangle の args: [x1, y1, c1, x2, y2, c2, x3, y3, c3, z]
+  # 全三角形の全頂点のx座標を集める
+  def all_triangle_xs
+    Gosu::DRAW_LOG.flat_map { |c| [c.args[0], c.args[3], c.args[6]] }
   end
 
+  # --- Ruby: 基本動作 ---
+  def test_ruby_draws_filled_triangles
+    Ruby(color: {h: 0, s: 1, v: 1})
+    refute_empty Gosu::DRAW_LOG
+    assert Gosu::DRAW_LOG.all? { |c| c.method == :triangle }
+  end
+
+  # クラウン5枚 + パビリオン3枚 = 計8枚の塗りつぶし三角形
   def test_ruby_draws_8_facet_triangles
-    skip
+    Ruby(color: {h: 0, s: 1, v: 1})
+    assert_equal 8, Gosu::DRAW_LOG.size
   end
 
   # --- Ruby: 位置 ---
+  # size=1, gap=0 で、幅は -1〜+1 VJユニット。画面中心 640 を挟んで ±UNIT に広がる
   def test_ruby_at_origin_spans_both_sides_of_screen_center
-    skip
+    Ruby(size: 1, color: {h: 0, s: 1, v: 1}, gap: 0)
+    xs = all_triangle_xs
+    assert_in_delta 640.0 - UNIT, xs.min, 0.001
+    assert_in_delta 640.0 + UNIT, xs.max, 0.001
   end
 
+  # x=2 で全体が右に 2*UNIT ずれる
   def test_ruby_at_offset_position_shifts_all_vertices
-    skip
+    Ruby(x: 2, size: 1, color: {h: 0, s: 1, v: 1}, gap: 0)
+    xs = all_triangle_xs
+    assert_in_delta 640.0 + 2 * UNIT - UNIT, xs.min, 0.001
+    assert_in_delta 640.0 + 2 * UNIT + UNIT, xs.max, 0.001
   end
 
   # --- Ruby: サイズ ---
+  # size=2 で幅が 2 倍（±2*UNIT）
   def test_ruby_size_scales_dimensions
-    skip
+    Ruby(size: 2, color: {h: 0, s: 1, v: 1}, gap: 0)
+    xs = all_triangle_xs
+    assert_in_delta 640.0 - 2 * UNIT, xs.min, 0.001
+    assert_in_delta 640.0 + 2 * UNIT, xs.max, 0.001
   end
 
   # --- Ruby: 描画パラメータ ---
+  # draw_triangle の z は args[9]（末尾）
   def test_ruby_z_is_passed_through
-    skip
+    Ruby(color: {h: 0, s: 1, v: 1}, z: 7)
+    zs = Gosu::DRAW_LOG.map { |c| c.args[9] }
+    assert zs.all? { |z| z == 7 }
   end
 
+  # gap > 0 で各三角形が重心方向に縮むため、全体の x 幅は狭くなる
   def test_ruby_gap_shrinks_triangles_toward_centroid
-    skip
+    Ruby(size: 1, color: {h: 0, s: 1, v: 1}, gap: 0)
+    no_gap_width = all_triangle_xs.max - all_triangle_xs.min
+
+    Gosu::DRAW_LOG.clear
+    Ruby(size: 1, color: {h: 0, s: 1, v: 1}, gap: 0.3)
+    with_gap_width = all_triangle_xs.max - all_triangle_xs.min
+
+    assert with_gap_width < no_gap_width
   end
 end
 
