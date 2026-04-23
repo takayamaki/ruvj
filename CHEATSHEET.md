@@ -270,7 +270,7 @@ require_relative 'lib/vj_effects/spectrum'
 include VjEffects::Spectrum
 
 def draw_scene
-  Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 200)
+  Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 0..360)
 end
 ```
 
@@ -280,7 +280,7 @@ end
 | `x`, `y` | `0, -8` | 左端の X 位置、バー群の下端 Y 位置 |
 | `width`  | `24`  | 全体幅（VJ単位） |
 | `height` | `6`   | 最大高さ（VJ単位） |
-| `hue`    | `200` | 色相（0〜360） |
+| `hue`    | `0..360` | 色相。数値で全 bar 同色、Range で `begin..end` を `n` 分割して各 bar に割り当て（`0..360` でレインボー） |
 | `sat`    | `0.8` | 彩度 |
 | `val`    | `1.0` | 明度 |
 | `alpha`  | `255` | 不透明度 |
