@@ -37,8 +37,8 @@ jobs:
           cp index.html _site/
           cp -r lib _site/
           cp -r wasm _site/
-          cp -r node_modules/@ruby/wasm-wasi _site/node_modules/@ruby/
-          cp -r node_modules/@ruby/3.3-wasm-wasi _site/node_modules/@ruby/
+          cp -rL node_modules/@ruby/wasm-wasi _site/node_modules/@ruby/
+          cp -rL node_modules/@ruby/3.3-wasm-wasi _site/node_modules/@ruby/
 
       - uses: actions/upload-pages-artifact@v3
         with:
