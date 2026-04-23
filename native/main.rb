@@ -21,7 +21,8 @@ class RuVJ < Gosu::Window
     VjRenderer.use(@renderer)
 
     @beat  = Beat.new
-    @audio = Audio.new(beat_fallback: @beat)
+    # RUVJ_NO_CALIB=1 で起動時フロアノイズ学習をスキップ（既に音が鳴ってる状態で起動するとき用）
+    @audio = Audio.new(beat_fallback: @beat, calibrate: ENV['RUVJ_NO_CALIB'].to_s.empty?)
     @osc   = OscReceiver.new
     @vj    = VJContext.new(beat: @beat, audio: @audio, osc: @osc)
 
