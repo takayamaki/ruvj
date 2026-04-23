@@ -89,4 +89,13 @@ class SpectrumTest < Minitest::Test
     # bar_w=8, gap=0.5 → 描画幅 = (8 - 0.5) * UNIT = 7.5 * 40 = 300
     assert_in_delta 7.5 * UNIT, rects.first.args[2], 0.001
   end
+
+  def test_numeric_hue_applies_same_hue_to_all_bars
+  end
+
+  def test_range_hue_distributes_hues_across_bars
+  end
+
+  def test_default_hue_is_full_circle_range
+  end
 end
