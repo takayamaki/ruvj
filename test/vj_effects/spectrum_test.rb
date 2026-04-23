@@ -114,5 +114,11 @@ class SpectrumTest < Minitest::Test
   end
 
   def test_default_hue_is_full_circle_range
+    # デフォルト hue (0..360) で n=3 → 赤・緑・青のレインボーになる
+    Spectrum(n: 3, gap: 0, sat: 0.8, val: 1.0)
+    colors = rects.map { |c| c.args[4] }
+    assert_equal expected_rgb(0,   0.8, 1.0), [colors[0].red, colors[0].green, colors[0].blue]
+    assert_equal expected_rgb(120, 0.8, 1.0), [colors[1].red, colors[1].green, colors[1].blue]
+    assert_equal expected_rgb(240, 0.8, 1.0), [colors[2].red, colors[2].green, colors[2].blue]
   end
 end

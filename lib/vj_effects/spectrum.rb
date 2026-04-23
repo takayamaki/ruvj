@@ -1,6 +1,6 @@
 module VjEffects
   module Spectrum
-    def Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 200, sat: 0.8, val: 1.0, alpha: 255, gap: 0.1, z: 0)
+    def Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 0..360, sat: 0.8, val: 1.0, alpha: 255, gap: 0.1, z: 0)
       bars  = @vj.spectrum(n)
       bar_w = width.to_f / n
       bars.each_with_index do |v, i|
