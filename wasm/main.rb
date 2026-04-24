@@ -10,6 +10,12 @@ rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_shapes: #{e.message}')"); 
 begin; require_relative '../lib/vj_effects/spectrum'; JS.eval("console.log('[RuVJ] vj_effects/spectrum loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_effects/spectrum: #{e.message}')"); end
 
+begin; require_relative '../lib/vj_effects/particles'; JS.eval("console.log('[RuVJ] vj_effects/particles loaded')")
+rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_effects/particles: #{e.message}')"); end
+
+begin; require_relative '../lib/vj_effects/warp'; JS.eval("console.log('[RuVJ] vj_effects/warp loaded')")
+rescue => e; JS.eval("console.error('[RuVJ] FAILED vj_effects/warp: #{e.message}')"); end
+
 begin; require_relative 'renderer/webgl';        JS.eval("console.log('[RuVJ] renderer/webgl loaded')")
 rescue => e; JS.eval("console.error('[RuVJ] FAILED renderer/webgl: #{e.message}')"); end
 
@@ -20,6 +26,7 @@ JS.eval("console.log('[RuVJ] all requires done')")
 
 class RuVJWasm
   include VjShapes
+  include VjEffects
   include VjEffects::Spectrum
 
   def initialize
