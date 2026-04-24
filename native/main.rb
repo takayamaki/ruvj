@@ -29,7 +29,7 @@ class RuVJ < Gosu::Window
     @osc   = OscReceiver.new
     @vj    = VJContext.new(beat: @beat, audio: @audio, osc: @osc)
 
-    @visual_path  = File.expand_path('../visual.rb', __dir__)
+    @visual_path  = ARGV[0] ? File.expand_path(ARGV[0]) : File.expand_path('../visual.rb', __dir__)
     @last_loaded  = Time.at(0)
     reload_visual
   end
