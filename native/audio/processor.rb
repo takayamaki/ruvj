@@ -27,9 +27,11 @@ class Audio
 
     def build_proc_ractor
       Ractor.new(@result_port, SAMPLE_RATE, CHUNK_SIZE, ENERGY_FRAMES) do |result_port, sr, cs, ef|
-        cmd   = "rec -q -t raw -e signed-integer -b 16 -c 1 -r #{sr} -"
-        io    = IO.popen(cmd, 'rb')
         bytes = cs * 2
+        # WSL2 の sox rec 経由は出力がバースト的で read が p99=1s 級に跳ねるため
+        # pulseaudio から直接取得する。--latency-msec をチャンク長に合わせて供給を揃える
+        cmd = "parec --raw --format=s16le --rate=#{sr} --channels=1 --latency-msec=#{(cs * 1000) / sr}"
+        io  = IO.popen(cmd, 'rb')
 
         energy_history = Array.new(ef, 0.0)
         bin    = sr.to_f / cs
