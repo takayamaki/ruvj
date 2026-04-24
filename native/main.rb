@@ -9,6 +9,9 @@ require_relative '../lib/vj_shapes'
 require_relative '../lib/vj_effects/spectrum'
 require_relative '../lib/vj_effects/particles'
 require_relative '../lib/vj_effects/warp'
+require_relative '../lib/vj_effects/recording_renderer'
+require_relative '../lib/vj_effects/trail'
+require_relative '../lib/vj_effects/ripple'
 require_relative 'renderer/gosu'
 
 class RuVJ < Gosu::Window
