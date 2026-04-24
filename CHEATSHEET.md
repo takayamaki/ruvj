@@ -20,12 +20,16 @@ Tunnel(n: 10, offset: 0, r_max: 10, color:, z: 0)
 Spectrum(n: 32, x: 0, y: -8, width: 24, height: 6, hue: 200, sat: 0.8, val: 1.0, alpha: 255, gap: 0.1, z: 0)
 
 # stateful (@@var ||= new → per-frame)
-WarpStream.new(max: 300)
-WarpStream#step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, bold: 0, color:, z: 0)
-ParticleSystem.new(max: 300)
-ParticleSystem#emit(x: 0, y: 0, speed: 0.15, life: 90, hue: 0, size: 0.2, n: 1)
-ParticleSystem#update
-ParticleSystem#draw(z: 0)
+Warp.new(max: 300)
+Warp#step(r_min: 2, density: 5, speed: 0.05, accel: 1.04, bold: 0, color:, z: 0)
+Particles.new(max: 300)
+Particles#emit(x: 0, y: 0, speed: 0.15, life: 90, hue: 0, size: 0.2, n: 1)
+Particles#update
+Particles#draw(z: 0)
+Trail.new(len: 60)
+Trail#update { ... }
+Ripple.new(max: 20, speed: 0.2, life: 60, r_start: 0.5)
+Ripple#update(emit: false) { |r:, alpha:| ... }
 
 # helpers
 polar(r, theta) #=> {x:, y:}
@@ -251,12 +255,10 @@ alpha は中心 0 → 外側 255 で自動グラデーション（`color` の `a
 
 ---
 
-## WarpStream — 放射ワープストリーム
+## Warp — 放射ワープストリーム
 
 ```ruby
-require_relative 'lib/warp_stream'
-
-@@warp ||= WarpStream.new(max: 300)
+@@warp ||= Warp.new(max: 300)
 
 def draw_scene
   @@warp.step(r_min: 2, density: 5, color: {h: 200, s: 1, v: 1})
@@ -302,12 +304,10 @@ end
 
 ---
 
-## ParticleSystem — 重力パーティクル
+## Particles — 重力パーティクル
 
 ```ruby
-require_relative 'lib/particle'
-
-@@ps ||= ParticleSystem.new(max: 500)
+@@ps ||= Particles.new(max: 500)
 
 def draw_scene
   @@ps.emit(x: 0, y: 0, speed: 0.2, life: 120, hue: @vj.t * 30 % 360, n: @vj.beat? ? 20 : 2)
@@ -330,6 +330,69 @@ end
 - 重力: `vy -= 0.003` / フレーム（下方向）
 - alpha は `life / max_life` で寿命に比例して減衰
 - `@@` クラス変数でホットリロード後も状態を保持
+
+---
+
+## Trail — 残像トレイル
+
+```ruby
+@@trail ||= Trail.new(len: 60)
+
+def draw_scene
+  Bg(color: {h: 0, s: 0, v: 0})
+  @@trail.update do
+    Circle(x: Math.sin(@vj.t * 2) * 10, y: 0, r: 0.5, color: {h: 180, s: 1, v: 1})
+  end
+end
+```
+
+ブロック内の描画を毎フレーム記録し、直近 `len` フレーム分を alpha fade させながら再生。ブロック内の `@vj` や `Circle/Ring/Line` 等は呼び出し側 (`RuVJ`) コンテキストで解決される。
+
+| 引数 | デフォルト | 内容 |
+|------|-----------|------|
+| `len` | `60` | 保持するフレーム数。大きいほど残像が長く尾を引く |
+
+- Gosu は毎フレーム画面を clear するため、半透明 `Bg` で残像を作る手法は使えない。本エフェクトで代替する
+- ブロック内の `translate/scale/rotate` は記録時点で座標に焼き込まれる (`Kaleidoscope` をネストすると各フレームで静止した万華鏡が残像する挙動)
+
+---
+
+## Ripple — 波紋エフェクト
+
+```ruby
+@@ripple ||= Ripple.new(max: 20, speed: 0.2, life: 60)
+
+def draw_scene
+  Bg(color: {h: 0, s: 0, v: 0.02})
+  @@ripple.update(emit: @vj.beat?) do |r:, alpha:|
+    Ring(x: 0, y: 0, r: r, color: {h: 180, s: 1, v: 1, a: alpha})
+  end
+end
+```
+
+`emit: true` のフレームで新しい波紋 (drop) を発生させ、フレームごとに `speed` だけ半径を広げながら `life` フレーム後に消える。毎フレーム、生きている全 drop についてブロックを呼び出し、`r` と `alpha` をキーワード引数で渡す。
+
+### Ripple.new 引数
+
+| 引数 | デフォルト | 内容 |
+|------|-----------|------|
+| `max`     | `20`  | 同時に存在できる drop 数。超過時は emit 抑制 |
+| `speed`   | `0.2` | フレームあたり半径が増える量 (VJ単位) |
+| `life`    | `60`  | drop の寿命 (フレーム数) |
+| `r_start` | `0.5` | 発生時の初期半径 (VJ単位) |
+
+### update 引数
+
+| 引数 | デフォルト | 内容 |
+|------|-----------|------|
+| `emit` | `false` | `true` のフレームで新規 drop を発生 |
+
+### ブロック引数 (キーワード)
+
+| キー | 型 | 内容 |
+|------|-----|------|
+| `r`     | Float | 現在の半径 (VJ単位) |
+| `alpha` | Int   | `0..255`、寿命に比例して減衰 |
 
 ---
 
