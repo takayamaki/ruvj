@@ -11,9 +11,9 @@ RubyistイベントでのDJ/VJパフォーマンス用、Gosuベースのライ�
 
 - **Ruby** 4.0.2
 - **Gosu** 1.4.6 (2Dゲームライブラリ)
-- **sox** (マイク入力)
+- **parec** (マイク入力、PulseAudio経由)
 - **osc-ruby** (OSC入力、任意)
-- **WSL2 + WSLg** (実行環境)
+- **Linux**（WSL2 + WSLg 含む）; macOS 対応は TBD
 
 ## アーキテクチャ
 
