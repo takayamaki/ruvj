@@ -47,4 +47,4 @@ ruby main.rb
 
 ## License
 
-Private
+MIT
