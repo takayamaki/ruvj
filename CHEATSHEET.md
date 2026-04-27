@@ -1,6 +1,6 @@
-# RuVJ チートシート
+# RuVJ Cheat Sheet
 
-## 究極のチートシート
+## Quick Reference
 
 ```ruby
 # shapes
@@ -35,11 +35,11 @@ Ripple#update(emit: false) { |r:, alpha:| ... }
 polar(r, theta) #=> {x:, y:}
 ```
 
-各APIの詳細は以降のセクションを参照。
+See the sections below for full API details.
 
 ---
 
-## 座標系
+## Coordinate System
 
 ```
          y = +9
@@ -49,161 +49,162 @@ polar(r, theta) #=> {x:, y:}
          y = -9
 ```
 
-- 画面中央が原点 `(0, 0)`
-- 1ユニット = 40px
-- **y は上向き**（数学座標系）
+- Origin `(0, 0)` is the center of the screen
+- 1 unit = 40 px
+- **y is upward** (mathematical convention)
 
 ---
 
-## color オブジェクト
+## color Object
 
 ```ruby
-{h: 色相, s: 彩度, v: 明度}          # a 省略時は不透明 (255)
-{h: 色相, s: 彩度, v: 明度, a: 透明度}
+{h: hue, s: saturation, v: value}           # alpha defaults to 255 (opaque)
+{h: hue, s: saturation, v: value, a: alpha}
 ```
 
-| キー | 型    | 範囲       | デフォルト |
-|------|-------|-----------|-----------|
-| `h`  | Float | `0..360`  | `0`（赤）  |
-| `s`  | Float | `0.0..1.0`| `1`       |
-| `v`  | Float | `0.0..1.0`| `1`       |
-| `a`  | Int   | `0..255`  | `255`     |
+| Key | Type  | Range      | Default |
+|-----|-------|------------|---------|
+| `h` | Float | `0..360`   | `0` (red) |
+| `s` | Float | `0.0..1.0` | `1`     |
+| `v` | Float | `0.0..1.0` | `1`     |
+| `a` | Int   | `0..255`   | `255`   |
 
-**よく使う色相**
+**Common hue values**
 
-| h | 色 |
-|---|---|
-| 0 / 360 | 赤 |
-| 30 | オレンジ |
-| 60 | 黄 |
-| 120 | 緑 |
-| 180 | シアン |
-| 200 | 水色 |
-| 240 | 青 |
-| 280 | 紫 |
-| 300 | マゼンタ |
+| h | Color |
+|---|-------|
+| 0 / 360 | Red |
+| 30 | Orange |
+| 60 | Yellow |
+| 120 | Green |
+| 180 | Cyan |
+| 200 | Sky blue |
+| 240 | Blue |
+| 280 | Purple |
+| 300 | Magenta |
 
 ---
 
-## @vj — オーディオ・ビートコンテキスト
+## @vj — Audio & Beat Context
 
-### 音量・周波数帯域（0.0〜1.0、ピーク追従で正規化済み）
+### Volume & Frequency Bands (0.0–1.0, peak-normalized)
 
-| メソッド | 内容 |
-|---------|------|
-| `@vj.amp` | 全体音量 |
-| `@vj.low` | 低域（ベース・キック） |
-| `@vj.mid` | 中域（ボーカル・コード） |
-| `@vj.hi`  | 高域（ハット・シンバル） |
+| Method | Description |
+|--------|-------------|
+| `@vj.amp` | Overall volume |
+| `@vj.low` | Low band (bass, kick) |
+| `@vj.mid` | Mid band (vocals, chords) |
+| `@vj.hi`  | High band (hats, cymbals) |
 
-### ビート
+### Beat
 
-| メソッド | 型 | 内容 |
-|---------|-----|------|
-| `@vj.beat?` | Bool | そのフレームでビートが発火したら `true`（1回限り消費） |
-| `@vj.beat`  | Float | `0..360`  | ビート直後 1.0 → 指数減衰。フラッシュや弾性に |
-| `@vj.phase` | Float | `0.0..1.0` | BPMに同期した位相。1周 = 1ビート |
-| `@vj.bpm`   | Float | タップテンポ / 手動設定の BPM |
-| `@vj.count` | Int   | ビート通算カウント |
+| Method | Type | Description |
+|--------|------|-------------|
+| `@vj.beat?` | Bool | `true` on the frame the beat fires (consumed once) |
+| `@vj.beat`  | Float | `0..1` — 1.0 right after beat, exponential decay; good for flashes |
+| `@vj.phase` | Float | `0.0..1.0` — phase synced to BPM; one full cycle per beat |
+| `@vj.bpm`   | Float | Current BPM (tap tempo or manual) |
+| `@vj.count` | Int   | Cumulative beat count |
 
-### 時間・フレーム
+### Time & Frame
 
-| メソッド | 型 | 内容 |
-|---------|-----|------|
-| `@vj.t`     | Float | 起動からの経過秒 |
-| `@vj.frame` | Int   | 描画フレーム数 |
+| Method | Type | Description |
+|--------|------|-------------|
+| `@vj.t`     | Float | Seconds elapsed since startup |
+| `@vj.frame` | Int   | Frame count since startup |
 
-### スペクトラム・波形
+### Spectrum & Waveform
 
-| メソッド | 型 | 内容 |
-|---------|-----|------|
-| `@vj.spectrum(n=32)` | `Array<Float>` | 対数スケール n 本のスペクトラム（各 0.0〜1.0） |
-| `@vj.waveform`       | `Array<Float>` | 256 点の波形データ（各 -1.0〜1.0 程度） |
+| Method | Type | Description |
+|--------|------|-------------|
+| `@vj.spectrum(n=32)` | `Array<Float>` | Log-scaled spectrum with `n` bins (each 0.0–1.0) |
+| `@vj.waveform`       | `Array<Float>` | 256-point waveform data (each approx. -1.0–1.0) |
 
-### OSC（MIDI CC 連携）
+### OSC (MIDI CC integration)
 
 ```ruby
-@vj.osc('/midi/cc/1')   # 0.0〜1.0。未受信なら 0.0
+@vj.osc('/midi/cc/1')   # 0.0–1.0; returns 0.0 if not yet received
 ```
 
 ---
 
-## VjShapes — プリミティブ
+## VjShapes — Primitives
 
-### Bg — 背景塗り
+### Bg — Background fill
 
 ```ruby
 Bg(color:)
 ```
 
-### Circle — 塗りつぶし円
+### Circle — Filled circle
 
 ```ruby
 Circle(x: 0, y: 0, r: 1, color:, z: 0, steps: 16)
 ```
 
-| 引数 | 範囲 | 内容 |
-|------|------|------|
-| `r`  | `> 0` | 半径（VJ単位） |
-| `steps` | 推奨 8〜32 | 分割数。大きいほど滑らか |
+| Arg | Range | Description |
+|-----|-------|-------------|
+| `r`     | `> 0`   | Radius in VJ units |
+| `steps` | 8–32 recommended | Polygon resolution; higher = smoother |
 
-### Rect — 矩形
+### Rect — Rectangle
 
 ```ruby
 Rect(x: 0, y: 0, w: 1, h: 1, color:, z: 0)
 ```
 
-### Triangle — 正三角形
+### Triangle — Equilateral triangle
 
 ```ruby
 Triangle(x: 0, y: 0, size: 1, angle: 0, color:, z: 0)
 ```
 
-| 引数 | 単位 | 内容 |
-|------|------|------|
-| `angle` | ラジアン | 回転角 |
+| Arg | Unit | Description |
+|-----|------|-------------|
+| `angle` | Radians | Rotation angle |
 
-### Line — 線分
+### Line — Line segment
 
 ```ruby
 Line(x1: 0, y1: 0, x2: 1, y2: 0, color:, z: 0, bold: 0)
 ```
 
-| 引数 | 範囲 | 内容 |
-|------|------|------|
-| `bold` | `0..` | 0 = 細線、正値 = 線幅（1/100 VJ単位。`bold: 100` で幅 1） |
+| Arg | Range | Description |
+|-----|-------|-------------|
+| `bold` | `0..` | 0 = hairline; positive = line width (1/100 VJ units; `bold: 100` = width 1) |
 
-### Text — テキスト
+### Text — Text label
 
 ```ruby
 Text("hello", x: 0, y: 0, size: 1, color:, align_x: :left, align_y: :middle, z: 0)
 ```
 
-| 引数 | 選択肢 | 内容 |
-|------|--------|------|
-| `align_x` | `:left` `:center` `:right` | 水平揃え |
-| `align_y` | `:top` `:middle` `:bottom`  | 垂直揃え |
+| Arg | Options | Description |
+|-----|---------|-------------|
+| `align_x` | `:left` `:center` `:right` | Horizontal alignment |
+| `align_y` | `:top` `:middle` `:bottom`  | Vertical alignment |
 
-改行 `\n` で複数行対応。
+Newlines (`\n`) are supported for multi-line text.
 
-### Ruby — Rubyロゴ風のジェム
+### Ruby — Ruby logo gem shape
 
 ```ruby
 Ruby(x: 0, y: 0, size: 1, color:, z: 0, gap: 0.08)
 ```
 
-塗りつぶされた8枚の三角形（パビリオン3枚 = 左右狭 + 中央ワイド、クラウン5枚 = upward 3枚 + downward 2枚のジグザグ）で Ruby ロゴの輪郭を構成。赤（`{h: 0, s: 1, v: 1}`）で描画するとまさにロゴそのもの。`gap` を大きくするとファセット間の白い隙間が広がってシャープな宝石感が出る（0 で隙間なしのベタ塗りポリゴン）。
+Renders the Ruby logo silhouette as 8 filled triangles (3 pavilion + 5 crown facets).
+Draw with `{h: 0, s: 1, v: 1}` for the classic red gem.
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `size` | `1` | 全体のスケール（幅は約 `2 * size` VJ単位、高さは約 `1.2 * size` VJ単位） |
-| `gap`  | `0.08` | 各ファセット三角形を重心方向に縮める割合（0.0〜1.0） |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `size` | `1`    | Overall scale (width ≈ `2 * size` VJ units, height ≈ `1.2 * size`) |
+| `gap`  | `0.08` | Inward shrink ratio per facet triangle; larger = more visible facet gaps |
 
 ---
 
-## VjShapes — 複合エフェクト
+## VjShapes — Composite Effects
 
-### Kaleidoscope — 回転対称描画
+### Kaleidoscope — Rotational symmetry
 
 ```ruby
 Kaleidoscope(segments: 6) do
@@ -211,51 +212,52 @@ Kaleidoscope(segments: 6) do
 end
 ```
 
-ブロック内の描画を `segments` 回均等回転して複製。`@vj` や他のシェイプメソッドはブロック内で直接使える。
+Rotates and mirrors the block's drawing `segments` times evenly.
+`@vj` and shape methods are available directly inside the block.
 
-### Lissajous — リサージュ曲線
+### Lissajous — Lissajous curve
 
 ```ruby
 Lissajous(a: 3, b: 2, delta: 0, rx: 5, ry: 5, steps: 128, bold: 0, color:, z: 0)
 ```
 
-| 引数 | 内容 |
-|------|------|
-| `a`, `b` | X/Y 周波数比。整数比で閉じた曲線（例: 3:2, 5:4） |
-| `delta` | 位相差（ラジアン）。`@vj.t * 0.5` でアニメーション |
-| `rx`, `ry` | X/Y 半径（VJ単位） |
-| `bold` | Line の太さ（`Line` の `bold` と同じ単位） |
+| Arg | Description |
+|-----|-------------|
+| `a`, `b` | X/Y frequency ratio; integer ratios produce closed curves (e.g. 3:2, 5:4) |
+| `delta` | Phase offset in radians; use `@vj.t * 0.5` to animate |
+| `rx`, `ry` | X/Y radius in VJ units |
+| `bold` | Line thickness (same unit as `Line#bold`) |
 
-### Ring — 中空円
+### Ring — Hollow circle
 
 ```ruby
 Ring(x: 0, y: 0, r: 3, color:, z: 0, steps: 32)
 ```
 
-`Circle` の中空版。`Line` の折れ線で円周を描く。
+Outline-only version of `Circle`, drawn as a polyline.
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `r`     | `1`  | 半径（VJ単位） |
-| `steps` | `32` | 分割数 |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `r`     | `1`  | Radius in VJ units |
+| `steps` | `32` | Polygon resolution |
 
-### Tunnel — 同心リングトンネル
+### Tunnel — Concentric ring tunnel
 
 ```ruby
 Tunnel(n: 10, offset: 0, r_max: 10, color:, z: 0)
 ```
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `n`      | `10` | リング数 |
-| `offset` | `0`  | 位相オフセット（0.0〜1.0）。`@vj.t * 0.3` でスクロール |
-| `r_max`  | `10` | 最大半径（VJ単位） |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `n`      | `10` | Number of rings |
+| `offset` | `0`  | Phase offset (0.0–1.0); use `@vj.t * 0.3` to scroll |
+| `r_max`  | `10` | Outermost ring radius in VJ units |
 
-alpha は中心 0 → 外側 255 で自動グラデーション（`color` の `a:` 指定不要）。
+Alpha automatically gradients from 0 (center) to 255 (edge); no need to set `a:` in `color`.
 
 ---
 
-## Warp — 放射ワープストリーム
+## Warp — Radial warp stream
 
 ```ruby
 @@warp ||= Warp.new(max: 300)
@@ -265,21 +267,21 @@ def draw_scene
 end
 ```
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `r_min`   | `2`    | デッドゾーン半径（VJ単位）。この内側は無描画 |
-| `density` | `5`    | 1フレームあたりの放出数 |
-| `speed`   | `0.05` | 初速（VJ単位/フレーム） |
-| `accel`   | `1.04` | 速度倍率。`1.0` = 等速、`1.04〜1.08` でワープ感 |
-| `bold`    | `0`    | ストリーク線の太さ（`Line` と同じ単位） |
-| `max`     | `300`  | `new` 時に指定。最大パーティクル数 |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `r_min`   | `2`    | Dead-zone radius; no particles inside this distance |
+| `density` | `5`    | Particles emitted per frame |
+| `speed`   | `0.05` | Initial speed in VJ units/frame |
+| `accel`   | `1.04` | Speed multiplier per frame; `1.0` = constant, `1.04–1.08` = warp feel |
+| `bold`    | `0`    | Streak line thickness (same unit as `Line#bold`) |
+| `max`     | `300`  | Set at `new`; maximum live particle count |
 
-- `r_prev → r` の Line ストリークで放射線を描画
-- alpha は距離に比例して自動計算（`color` の `a:` は上書きされる）
+- Draws radial streaks as `Line` from `r_prev → r`
+- Alpha is auto-calculated proportional to distance; `color[:a]` is overridden
 
 ---
 
-## VjEffects::Spectrum — スペクトラムバー
+## VjEffects::Spectrum — Spectrum bars
 
 ```ruby
 require_relative 'lib/vj_effects/spectrum'
@@ -290,21 +292,21 @@ def draw_scene
 end
 ```
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `n`      | `32`  | バー数（`@vj.spectrum(n)` に渡る） |
-| `x`, `y` | `0, -8` | 左端の X 位置、バー群の下端 Y 位置 |
-| `width`  | `24`  | 全体幅（VJ単位） |
-| `height` | `6`   | 最大高さ（VJ単位） |
-| `hue`    | `0..360` | 色相。数値で全 bar 同色、Range で `begin..end` を `n` 分割して各 bar に割り当て（`0..360` でレインボー） |
-| `sat`    | `0.8` | 彩度 |
-| `val`    | `1.0` | 明度 |
-| `alpha`  | `255` | 不透明度 |
-| `gap`    | `0.1` | バー間の隙間（VJ単位） |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `n`      | `32`     | Bar count (passed to `@vj.spectrum(n)`) |
+| `x`, `y` | `0, -8`  | Left edge X, bottom edge Y of the bar group |
+| `width`  | `24`     | Total width in VJ units |
+| `height` | `6`      | Maximum bar height in VJ units |
+| `hue`    | `0..360` | Hue value or Range; a Range splits `begin..end` across `n` bars (`0..360` = rainbow) |
+| `sat`    | `0.8`    | Saturation |
+| `val`    | `1.0`    | Value (brightness) |
+| `alpha`  | `255`    | Opacity |
+| `gap`    | `0.1`    | Gap between bars in VJ units |
 
 ---
 
-## Particles — 重力パーティクル
+## Particles — Gravity particles
 
 ```ruby
 @@ps ||= Particles.new(max: 500)
@@ -316,24 +318,24 @@ def draw_scene
 end
 ```
 
-### emit 引数
+### emit arguments
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `x`, `y` | `0, 0` | 放出位置（VJ単位） |
-| `speed`  | `0.15` | 最大初速（実際は 0〜speed のランダム） |
-| `life`   | `90`   | 寿命（フレーム数） |
-| `hue`    | `0`    | 色相（0〜360） |
-| `size`   | `0.2`  | 半径（VJ単位） |
-| `n`      | `1`    | 1回の emit 数 |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `x`, `y` | `0, 0` | Spawn position in VJ units |
+| `speed`  | `0.15` | Max initial speed (actual speed is random from 0 to `speed`) |
+| `life`   | `90`   | Lifetime in frames |
+| `hue`    | `0`    | Hue (0–360) |
+| `size`   | `0.2`  | Radius in VJ units |
+| `n`      | `1`    | Number of particles per emit call |
 
-- 重力: `vy -= 0.003` / フレーム（下方向）
-- alpha は `life / max_life` で寿命に比例して減衰
-- `@@` クラス変数でホットリロード後も状態を保持
+- Gravity: `vy -= 0.003` per frame (downward)
+- Alpha decays proportional to `life / max_life`
+- Use `@@` class variables so state survives hot reload
 
 ---
 
-## Trail — 残像トレイル
+## Trail — Motion trail
 
 ```ruby
 @@trail ||= Trail.new(len: 60)
@@ -346,18 +348,19 @@ def draw_scene
 end
 ```
 
-ブロック内の描画を毎フレーム記録し、直近 `len` フレーム分を alpha fade させながら再生。ブロック内の `@vj` や `Circle/Ring/Line` 等は呼び出し側 (`RuVJ`) コンテキストで解決される。
+Records the block's drawing each frame and replays the last `len` frames with alpha fade.
+`@vj` and shape methods inside the block resolve against the calling context (`RuVJ`).
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `len` | `60` | 保持するフレーム数。大きいほど残像が長く尾を引く |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `len` | `60` | Frames to retain; larger = longer trail |
 
-- Gosu は毎フレーム画面を clear するため、半透明 `Bg` で残像を作る手法は使えない。本エフェクトで代替する
-- ブロック内の `translate/scale/rotate` は記録時点で座標に焼き込まれる (`Kaleidoscope` をネストすると各フレームで静止した万華鏡が残像する挙動)
+- Gosu clears the screen every frame, so the semi-transparent `Bg` trick doesn't work here — use `Trail` instead.
+- `translate`/`scale`/`rotate` inside the block are baked into coordinates at record time.
 
 ---
 
-## Ripple — 波紋エフェクト
+## Ripple — Ripple effect
 
 ```ruby
 @@ripple ||= Ripple.new(max: 20, speed: 0.2, life: 60)
@@ -370,42 +373,43 @@ def draw_scene
 end
 ```
 
-`emit: true` のフレームで新しい波紋 (drop) を発生させ、フレームごとに `speed` だけ半径を広げながら `life` フレーム後に消える。毎フレーム、生きている全 drop についてブロックを呼び出し、`r` と `alpha` をキーワード引数で渡す。
+Spawns a new drop when `emit: true`, expands its radius by `speed` each frame, and removes it after `life` frames.
+Every frame the block is called for each live drop with `r` and `alpha` as keyword arguments.
 
-### Ripple.new 引数
+### Ripple.new arguments
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `max`     | `20`  | 同時に存在できる drop 数。超過時は emit 抑制 |
-| `speed`   | `0.2` | フレームあたり半径が増える量 (VJ単位) |
-| `life`    | `60`  | drop の寿命 (フレーム数) |
-| `r_start` | `0.5` | 発生時の初期半径 (VJ単位) |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `max`     | `20`  | Max concurrent drops; new emits are suppressed when full |
+| `speed`   | `0.2` | Radius increase per frame in VJ units |
+| `life`    | `60`  | Drop lifetime in frames |
+| `r_start` | `0.5` | Initial radius at spawn in VJ units |
 
-### update 引数
+### update arguments
 
-| 引数 | デフォルト | 内容 |
-|------|-----------|------|
-| `emit` | `false` | `true` のフレームで新規 drop を発生 |
+| Arg | Default | Description |
+|-----|---------|-------------|
+| `emit` | `false` | Spawn a new drop on `true` frames |
 
-### ブロック引数 (キーワード)
+### Block keyword arguments
 
-| キー | 型 | 内容 |
-|------|-----|------|
-| `r`     | Float | 現在の半径 (VJ単位) |
-| `alpha` | Int   | `0..255`、寿命に比例して減衰 |
+| Key | Type | Description |
+|-----|------|-------------|
+| `r`     | Float | Current radius in VJ units |
+| `alpha` | Int   | `0..255`, decays with remaining lifetime |
 
 ---
 
-## polar — 極座標ヘルパー
+## polar — Polar coordinate helper
 
 ```ruby
 polar(r, theta)  # => {x:, y:}
 
-# Circle への展開例
+# Spread example with Circle
 Circle(**polar(3, @vj.t), r: 1, color: {h: 0, s: 1, v: 1})
 ```
 
-| 引数 | 単位 |
-|------|------|
-| `r`     | VJ単位 |
-| `theta` | ラジアン |
+| Arg | Unit |
+|-----|------|
+| `r`     | VJ units |
+| `theta` | Radians |

@@ -1,50 +1,50 @@
 # RuVJ
 
-RubyistイベントでのDJ/VJパフォーマンス用、Gosuベースのライブコーディングビジュアライザー。
+A Gosu-based live coding visualizer for DJ/VJ performances at Rubyist events.
 
-## 概要
+## Overview
 
-ライブコーディングでビジュアルエフェクトを切り替える VJ ツール。
-`visual.rb` をエディタで書き換えるだけで、ホットリロードにより即座に画面に反映される。
+A VJ tool that switches visual effects through live coding.
+Just edit `visual.rb` in your editor — hot reload picks up changes instantly.
 
-## 技術スタック
+## Tech Stack
 
 - **Ruby** 4.0.2
-- **Gosu** 1.4.6 (2Dゲームライブラリ)
-- **sox** (マイク入力)
-- **osc-ruby** (OSC入力、任意)
-- **WSL2 + WSLg** (実行環境)
+- **Gosu** 1.4.6 (2D game library)
+- **parec** (microphone input via PulseAudio)
+- **osc-ruby** (OSC input, optional)
+- **Linux** (including WSL2 + WSLg); macOS support TBD
 
-## アーキテクチャ
+## Architecture
 
 ```
-main.rb       # Gosuウィンドウ本体、ホットリロード監視、キー操作
-beat.rb       # BPMカウンター、ビート信号管理
-audio.rb      # マイク入力・FFT・ビート検出・フォールバック管理
-visual.rb     # ライブコーディングターゲット（本番中に書き換え）
-palette.rb    # カラーパレット定義・切り替え
-draw_ext.rb   # 描画ヘルパー (円・多角形・HSV変換)
-particle.rb   # パーティクル基底クラス
-perlin.rb     # Perlinノイズ実装
+main.rb       # Gosu window, hot reload watcher, key handling
+beat.rb       # BPM counter, beat signal management
+audio.rb      # Mic input, FFT, beat detection, fallback chain
+visual.rb     # Live coding target — edit this during performance
+palette.rb    # Color palette definitions and switching
+draw_ext.rb   # Drawing helpers (circle, polygon, HSV conversion)
+particle.rb   # Particle base class
+perlin.rb     # Perlin noise implementation
 ```
 
-## キー操作
+## Key Controls
 
-| キー | 動作 |
-|------|------|
-| スペース | タップテンポ |
-| R | 強制リロード |
-| ↑↓ | BPM手動調整 |
-| 1-9 | エフェクト切り替え |
-| P / Shift+P | カラーパレット切り替え |
+| Key | Action |
+|-----|--------|
+| Space | Tap tempo |
+| R | Force reload |
+| ↑↓ | Manual BPM adjustment |
+| 1–9 | Switch effects |
+| P / Shift+P | Cycle color palette |
 
-## セットアップ
+## Setup
 
 ```bash
 bundle install
 ruby main.rb
 ```
 
-## ライセンス
+## License
 
-Private
+MIT
