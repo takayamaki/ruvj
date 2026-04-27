@@ -20,6 +20,7 @@ jobs:
           sudo apt-get install -y \
             build-essential pkg-config \
             libsdl2-dev libgl1-mesa-dev \
+            libfontconfig1-dev \
             libopenal-dev libmpg123-dev \
             libopus-dev libopusfile-dev libsndfile1-dev
 
